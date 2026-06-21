@@ -1,0 +1,120 @@
+<app-navbar></app-navbar>
+
+<div class="applications-container">
+  <div class="applications-header">
+    <h1>{{ authService.isCandidate ? 'My Applications' : 'Received Applications' }}</h1>
+    <p class="subtitle" *ngIf="authService.isCandidate">Track your job applications</p>
+    <p class="subtitle" *ngIf="authService.isReferrer">Manage applications for your job postings</p>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading applications...</p>
+  </div>
+
+  <div class="applications-list" *ngIf="!isLoading">
+    <!-- Candidate View -->
+    <div class="application-card" *ngFor="let application of applications" [ngClass]="{'candidate-view': authService.isCandidate}">
+      <div class="application-header">
+        <div>
+          <h2 *ngIf="authService.isCandidate">{{ application.job_details?.title }}</h2>
+          <h2 *ngIf="authService.isReferrer">
+            {{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}
+          </h2>
+          <p class="company" *ngIf="authService.isCandidate">
+            {{ application.job_details?.company }} • {{ application.job_details?.location }}
+          </p>
+          <p class="company" *ngIf="authService.isReferrer">
+            Applied for: {{ application.job_details?.title }}
+          </p>
+        </div>
+        <span class="badge" [ngClass]="getStatusClass(application.status)">
+          {{ application.status | titlecase }}
+        </span>
+      </div>
+
+      <div class="application-details">
+        <div class="detail-row">
+          <strong>Applied:</strong>
+          <span>{{ application.applied_at | date:'medium' }}</span>
+        </div>
+        <div class="detail-row">
+          <strong>Last Updated:</strong>
+          <span>{{ application.updated_at | date:'medium' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="authService.isReferrer && application.candidate_details?.email">
+          <strong>Email:</strong>
+          <span>{{ application.candidate_details?.email }}</span>
+        </div>
+      </div>
+
+      <div class="application-content" *ngIf="application.cover_letter">
+        <h3>Cover Letter</h3>
+        <p class="cover-letter">{{ application.cover_letter }}</p>
+      </div>
+
+      <div class="application-content" *ngIf="application.resume_url">
+        <h3>Resume</h3>
+        <a [href]="application.resume_url" target="_blank" class="resume-link">
+          View Resume →
+        </a>
+      </div>
+
+      <div class="application-content" *ngIf="application.notes && authService.isReferrer">
+        <h3>Internal Notes</h3>
+        <p>{{ application.notes }}</p>
+      </div>
+
+      <!-- Actions for Referrer -->
+      <div class="actions" *ngIf="authService.isReferrer">
+        <button 
+          (click)="updateStatus(application.id, 'reviewing')" 
+          class="btn-action btn-reviewing"
+          [disabled]="application.status === 'reviewing'"
+        >
+          Mark as Reviewing
+        </button>
+        <button 
+          (click)="updateStatus(application.id, 'shortlisted')" 
+          class="btn-action btn-shortlisted"
+          [disabled]="application.status === 'shortlisted'"
+        >
+          Shortlist
+        </button>
+        <button 
+          (click)="updateStatus(application.id, 'referred')" 
+          class="btn-action btn-referred"
+          [disabled]="application.status === 'referred'"
+        >
+          Mark as Referred
+        </button>
+        <button 
+          (click)="updateStatus(application.id, 'rejected')" 
+          class="btn-action btn-rejected"
+          [disabled]="application.status === 'rejected'"
+        >
+          Reject
+        </button>
+      </div>
+
+      <!-- Actions for Candidate -->
+      <div class="actions" *ngIf="authService.isCandidate">
+        <a [routerLink]="['/jobs', application.job]" class="btn-view">View Job</a>
+        <button 
+          (click)="deleteApplication(application.id)" 
+          class="btn-withdraw"
+          *ngIf="application.status === 'pending'"
+        >
+          Withdraw Application
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="applications.length === 0" class="empty-state">
+      <h3>No applications found</h3>
+      <p *ngIf="authService.isCandidate">You haven't applied to any jobs yet</p>
+      <p *ngIf="authService.isReferrer">No one has applied to your jobs yet</p>
+      <a routerLink="/jobs" class="btn-primary" *ngIf="authService.isCandidate">Browse Jobs</a>
+      <a routerLink="/post-job" class="btn-primary" *ngIf="authService.isReferrer">Post a Job</a>
+    </div>
+  </div>
+</div>

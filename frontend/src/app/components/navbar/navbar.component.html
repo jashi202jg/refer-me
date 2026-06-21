@@ -1,0 +1,25 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a routerLink="/dashboard">ReferMe</a>
+    </div>
+
+    <div class="nav-links" *ngIf="authService.isLoggedIn">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/jobs" routerLinkActive="active">Jobs</a>
+      <a routerLink="/post-job" routerLinkActive="active" *ngIf="authService.isReferrer">Post Job</a>
+      <a routerLink="/applications" routerLinkActive="active">Applications</a>
+      
+      <div class="user-menu">
+        <span class="user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
+        <span class="user-type">({{ currentUser?.user_type }})</span>
+        <button class="btn-logout" (click)="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="nav-links" *ngIf="!authService.isLoggedIn">
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+      <a routerLink="/signup" routerLinkActive="active" class="btn-signup">Sign Up</a>
+    </div>
+  </div>
+</nav>

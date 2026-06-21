@@ -1,0 +1,51 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Login to your ReferMe account</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="username" 
+          class="form-control"
+          placeholder="Enter your username"
+          [class.invalid]="f['username'].invalid && f['username'].touched"
+        >
+        <div class="error" *ngIf="f['username'].invalid && f['username'].touched">
+          Username is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password" 
+          class="form-control"
+          placeholder="Enter your password"
+          [class.invalid]="f['password'].invalid && f['password'].touched"
+        >
+        <div class="error" *ngIf="f['password'].invalid && f['password'].touched">
+          Password is required
+        </div>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading">Logging in...</span>
+      </button>
+    </form>
+
+    <div class="signup-link">
+      Don't have an account? <a routerLink="/signup">Sign up here</a>
+    </div>
+  </div>
+</div>

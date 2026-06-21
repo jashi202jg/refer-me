@@ -1,0 +1,127 @@
+<app-navbar></app-navbar>
+
+<div class="job-detail-container">
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading job details...</p>
+  </div>
+
+  <div class="job-detail" *ngIf="!isLoading && job">
+    <div class="job-header">
+      <div>
+        <h1>{{ job.title }}</h1>
+        <p class="company">{{ job.company }}</p>
+      </div>
+      <span class="badge" [class.status-open]="job.status === 'open'" [class.status-closed]="job.status === 'closed'">
+        {{ job.status | titlecase }}
+      </span>
+    </div>
+
+    <div class="job-meta">
+      <div class="meta-item">
+        <strong>Location:</strong> {{ job.location }}
+      </div>
+      <div class="meta-item">
+        <strong>Type:</strong> {{ job.job_type.replace('_', ' ') | titlecase }}
+      </div>
+      <div class="meta-item" *ngIf="job.experience_required">
+        <strong>Experience:</strong> {{ job.experience_required }}
+      </div>
+      <div class="meta-item" *ngIf="job.salary_range">
+        <strong>Salary:</strong> {{ job.salary_range }}
+      </div>
+      <div class="meta-item" *ngIf="job.applications_count !== undefined">
+        <strong>Applications:</strong> {{ job.applications_count }}
+      </div>
+    </div>
+
+    <div class="job-section">
+      <h2>Job Description</h2>
+      <p class="description">{{ job.description }}</p>
+    </div>
+
+    <div class="job-section">
+      <h2>Required Skills</h2>
+      <div class="skills">
+        <span class="skill-tag" *ngFor="let skill of job.skills_list">
+          {{ skill }}
+        </span>
+      </div>
+    </div>
+
+    <div class="job-section" *ngIf="job.posted_by_details">
+      <h2>Posted By</h2>
+      <p>{{ job.posted_by_details.first_name }} {{ job.posted_by_details.last_name }}</p>
+      <p class="posted-date">Posted on: {{ job.created_at | date:'medium' }}</p>
+    </div>
+
+    <div class="success-message" *ngIf="applicationSuccess">
+      ✓ Application submitted successfully! Redirecting...
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="actions">
+      <button *ngIf="canApply && !showApplicationForm" (click)="toggleApplicationForm()" class="btn-primary">
+        Apply for this Job
+      </button>
+
+      <div *ngIf="isOwner" class="owner-actions">
+        <a [routerLink]="['/jobs', job.id, 'edit']" class="btn-secondary">Edit Job</a>
+        <button (click)="deleteJob()" class="btn-danger">Delete Job</button>
+      </div>
+
+      <a routerLink="/jobs" class="btn-back">Back to Jobs</a>
+    </div>
+
+    <!-- Application Form -->
+    <div class="application-form" *ngIf="showApplicationForm">
+      <h2>Apply for this Position</h2>
+      <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()">
+        <div class="form-group">
+          <label for="cover_letter">Cover Letter *</label>
+          <textarea 
+            id="cover_letter" 
+            formControlName="cover_letter" 
+            rows="6"
+            placeholder="Tell us why you're a great fit for this role..."
+            class="form-control"
+          ></textarea>
+          <div class="error" *ngIf="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched">
+            Cover letter is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="resume_url">Resume URL *</label>
+          <input 
+            type="url" 
+            id="resume_url" 
+            formControlName="resume_url" 
+            placeholder="https://example.com/your-resume.pdf"
+            class="form-control"
+          >
+          <div class="error" *ngIf="applicationForm.get('resume_url')?.invalid && applicationForm.get('resume_url')?.touched">
+            Please enter a valid URL
+          </div>
+          <small>Provide a link to your resume (Google Drive, Dropbox, etc.)</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="applicationForm.invalid || applicationSubmitting">
+            <span *ngIf="!applicationSubmitting">Submit Application</span>
+            <span *ngIf="applicationSubmitting">Submitting...</span>
+          </button>
+          <button type="button" (click)="toggleApplicationForm()" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="not-found" *ngIf="!isLoading && !job">
+    <h2>Job not found</h2>
+    <p>The job you're looking for doesn't exist or has been removed.</p>
+    <a routerLink="/jobs" class="btn-primary">Browse Jobs</a>
+  </div>
+</div>
