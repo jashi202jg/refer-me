@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -38,7 +39,7 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username', 'email', 'password', 'password2',
+            'email', 'password', 'password2',
             'first_name', 'last_name', 'user_type',
             'phone', 'company'
         )
@@ -50,6 +51,11 @@ class SignupSerializer(serializers.ModelSerializer):
             })
         return attrs
     
+    def validate_email(self, value):
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("A user with this email address already exists.")
+        return value
+
     def validate_user_type(self, value):
         if value not in ['referrer', 'candidate']:
             raise serializers.ValidationError(
@@ -59,6 +65,21 @@ class SignupSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data.pop('password2')
+        
+        email = validated_data.get('email', '')
+        first_name = validated_data.get('first_name', '')
+        last_name = validated_data.get('last_name', '')
+        
+        base = email.split('@')[0] if email else f"{first_name}{last_name}".lower()
+        base_username = re.sub(r'[^a-zA-Z0-9_]', '', base) or 'user'
+        
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+            
+        validated_data['username'] = username
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -67,7 +88,7 @@ class LoginSerializer(serializers.Serializer):
     """
     Serializer for user login
     """
-    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(
         required=True,
         write_only=True,

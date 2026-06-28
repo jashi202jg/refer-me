@@ -25,13 +25,12 @@ export interface AuthResponse {
 
 // Login request
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
 // Signup request
 export interface SignupRequest {
-  username: string;
   email: string;
   password: string;
   password2: string;

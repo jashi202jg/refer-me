@@ -83,6 +83,11 @@ class Application(models.Model):
     
     cover_letter = models.TextField(blank=True, null=True)
     resume_url = models.URLField(blank=True, null=True)
+    resume_blob = models.TextField(blank=True, null=True, help_text='Base64 encoded resume file')
+    resume_filename = models.CharField(max_length=255, blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    portfolio_url = models.URLField(blank=True, null=True)
+    github_url = models.URLField(blank=True, null=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,

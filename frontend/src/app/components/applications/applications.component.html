@@ -52,11 +52,20 @@
         <p class="cover-letter">{{ application.cover_letter }}</p>
       </div>
 
-      <div class="application-content" *ngIf="application.resume_url">
+      <div class="application-content" *ngIf="application.resume_url || application.resume_blob">
         <h3>Resume</h3>
-        <a [href]="application.resume_url" target="_blank" class="resume-link">
-          View Resume →
+        <a [href]="application.resume_blob || application.resume_url" [download]="application.resume_filename || 'Resume'" target="_blank" class="resume-link">
+          View Resume {{ application.resume_filename ? '(' + application.resume_filename + ')' : '' }} →
         </a>
+      </div>
+
+      <div class="application-content" *ngIf="application.linkedin_url || application.github_url || application.portfolio_url">
+        <h3>Professional Profiles</h3>
+        <div class="profile-links" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px;">
+          <a *ngIf="application.linkedin_url" [href]="application.linkedin_url" target="_blank" class="resume-link">LinkedIn →</a>
+          <a *ngIf="application.github_url" [href]="application.github_url" target="_blank" class="resume-link">GitHub →</a>
+          <a *ngIf="application.portfolio_url" [href]="application.portfolio_url" target="_blank" class="resume-link">Portfolio →</a>
+        </div>
       </div>
 
       <div class="application-content" *ngIf="application.notes && authService.isReferrer">

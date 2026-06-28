@@ -56,6 +56,11 @@ export interface Application {
   };
   cover_letter?: string;
   resume_url?: string;
+  resume_blob?: string;
+  resume_filename?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
+  github_url?: string;
   status: 'pending' | 'reviewing' | 'shortlisted' | 'rejected' | 'referred';
   notes?: string;
   applied_at: string;
@@ -67,4 +72,9 @@ export interface ApplicationRequest {
   job: number;
   cover_letter?: string;
   resume_url?: string;
+  resume_blob?: string;
+  resume_filename?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
+  github_url?: string;
 }

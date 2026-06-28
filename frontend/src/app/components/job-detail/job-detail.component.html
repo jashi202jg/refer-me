@@ -21,7 +21,7 @@
         <strong>Location:</strong> {{ job.location }}
       </div>
       <div class="meta-item">
-        <strong>Type:</strong> {{ job.job_type.replace('_', ' ') | titlecase }}
+        <strong>Type:</strong> {{ (job.job_type || '').replace('_', ' ') | titlecase }}
       </div>
       <div class="meta-item" *ngIf="job.experience_required">
         <strong>Experience:</strong> {{ job.experience_required }}
@@ -39,7 +39,7 @@
       <p class="description">{{ job.description }}</p>
     </div>
 
-    <div class="job-section">
+    <div class="job-section" *ngIf="job.skills_list">
       <h2>Required Skills</h2>
       <div class="skills">
         <span class="skill-tag" *ngFor="let skill of job.skills_list">
@@ -84,9 +84,10 @@
           <textarea 
             id="cover_letter" 
             formControlName="cover_letter" 
-            rows="6"
+            rows="5"
             placeholder="Tell us why you're a great fit for this role..."
             class="form-control"
+            [class.invalid]="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched"
           ></textarea>
           <div class="error" *ngIf="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched">
             Cover letter is required
@@ -94,7 +95,18 @@
         </div>
 
         <div class="form-group">
-          <label for="resume_url">Resume URL *</label>
+          <label for="resume_file">Upload Resume (PDF, DOCX)</label>
+          <div class="file-upload-row">
+            <input type="file" id="resume_file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" class="file-input">
+            <span class="file-name-display" *ngIf="selectedResumeFilename">
+              {{ selectedResumeFilename }}
+              <button type="button" class="btn-link-danger" (click)="removeFile()">(Remove)</button>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="resume_url">Or Resume Link</label>
           <input 
             type="url" 
             id="resume_url" 
@@ -102,14 +114,46 @@
             placeholder="https://example.com/your-resume.pdf"
             class="form-control"
           >
-          <div class="error" *ngIf="applicationForm.get('resume_url')?.invalid && applicationForm.get('resume_url')?.touched">
-            Please enter a valid URL
+          <small>Provide a link to your resume if you didn't upload a file</small>
+        </div>
+
+        <div class="form-row-three">
+          <div class="form-group">
+            <label for="linkedin_url">LinkedIn URL (Optional)</label>
+            <input 
+              type="url" 
+              id="linkedin_url" 
+              formControlName="linkedin_url" 
+              placeholder="https://linkedin.com/in/username"
+              class="form-control"
+            >
           </div>
-          <small>Provide a link to your resume (Google Drive, Dropbox, etc.)</small>
+
+          <div class="form-group">
+            <label for="github_url">GitHub URL (Optional)</label>
+            <input 
+              type="url" 
+              id="github_url" 
+              formControlName="github_url" 
+              placeholder="https://github.com/username"
+              class="form-control"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="portfolio_url">Portfolio URL (Optional)</label>
+            <input 
+              type="url" 
+              id="portfolio_url" 
+              formControlName="portfolio_url" 
+              placeholder="https://yourportfolio.com"
+              class="form-control"
+            >
+          </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="applicationForm.invalid || applicationSubmitting">
+          <button type="submit" class="btn-primary" [disabled]="applicationSubmitting">
             <span *ngIf="!applicationSubmitting">Submit Application</span>
             <span *ngIf="applicationSubmitting">Submitting...</span>
           </button>

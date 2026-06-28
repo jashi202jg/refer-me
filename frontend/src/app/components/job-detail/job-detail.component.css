@@ -167,14 +167,17 @@
 
 .application-form {
   margin-top: 30px;
-  padding: 30px;
+  padding: 25px;
   background: #f8f9fa;
+  border: 1px solid #eee;
   border-radius: 10px;
 }
 
 .application-form h2 {
   margin-top: 0;
+  margin-bottom: 20px;
   color: #333;
+  font-size: 20px;
 }
 
 .form-group {
@@ -183,23 +186,69 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   color: #333;
   font-weight: 600;
+  font-size: 14px;
 }
 
 .form-control {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #667eea;
+}
+
+.form-control.invalid {
+  border-color: #e74c3c;
+}
+
+.file-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.file-input {
+  font-size: 14px;
+  color: #555;
+}
+
+.file-name-display {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 500;
+  background: #eef2f7;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-link-danger {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.form-row-three {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
 .error {
@@ -209,7 +258,7 @@
 }
 
 .form-group small {
-  color: #999;
+  color: #777;
   font-size: 12px;
   display: block;
   margin-top: 5px;
@@ -218,7 +267,7 @@
 .form-actions {
   display: flex;
   gap: 15px;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .success-message {

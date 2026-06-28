@@ -233,6 +233,10 @@
   margin-bottom: 10px;
 }
 
+.empty-state p {
+  margin-bottom: 20px;
+}
+
 @media (max-width: 768px) {
   .jobs-header {
     flex-direction: column;

@@ -24,6 +24,9 @@ export class JobDetailComponent implements OnInit {
   applicationSuccess = false;
   errorMessage = '';
 
+  selectedResumeBlob: string | null = null;
+  selectedResumeFilename: string | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -34,7 +37,10 @@ export class JobDetailComponent implements OnInit {
   ) {
     this.applicationForm = this.fb.group({
       cover_letter: ['', Validators.required],
-      resume_url: ['', [Validators.required, Validators.pattern('https?://.+')]]
+      resume_url: [''],
+      linkedin_url: [''],
+      portfolio_url: [''],
+      github_url: ['']
     });
   }
 
@@ -60,14 +66,47 @@ export class JobDetailComponent implements OnInit {
     this.showApplicationForm = !this.showApplicationForm;
   }
 
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedResumeFilename = file.name;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedResumeBlob = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeFile() {
+    this.selectedResumeBlob = null;
+    this.selectedResumeFilename = null;
+  }
+
   submitApplication() {
-    if (this.applicationForm.valid && this.job) {
+    if (this.applicationForm.invalid) {
+      this.applicationForm.markAllAsTouched();
+      return;
+    }
+
+    if (!this.selectedResumeBlob && !this.applicationForm.value.resume_url) {
+      this.errorMessage = 'Please upload a resume file or provide a resume link.';
+      return;
+    }
+
+    if (this.job) {
       this.applicationSubmitting = true;
       this.errorMessage = '';
 
       const applicationData = {
         job: this.job.id,
-        ...this.applicationForm.value
+        cover_letter: this.applicationForm.value.cover_letter,
+        resume_url: this.applicationForm.value.resume_url || undefined,
+        resume_blob: this.selectedResumeBlob || undefined,
+        resume_filename: this.selectedResumeFilename || undefined,
+        linkedin_url: this.applicationForm.value.linkedin_url || undefined,
+        portfolio_url: this.applicationForm.value.portfolio_url || undefined,
+        github_url: this.applicationForm.value.github_url || undefined
       };
 
       this.applicationService.createApplication(applicationData).subscribe({
@@ -81,7 +120,7 @@ export class JobDetailComponent implements OnInit {
         },
         error: (error) => {
           this.applicationSubmitting = false;
-          this.errorMessage = error.error?.message || 'Failed to submit application. You may have already applied.';
+          this.errorMessage = error.error?.message || error.error?.detail || 'Failed to submit application. You may have already applied.';
         }
       });
     }

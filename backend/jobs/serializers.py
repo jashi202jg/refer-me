@@ -66,8 +66,9 @@ class ApplicationSerializer(serializers.ModelSerializer):
         model = Application
         fields = (
             'id', 'job', 'job_details', 'candidate', 'candidate_details',
-            'cover_letter', 'resume_url', 'status', 'notes',
-            'applied_at', 'updated_at'
+            'cover_letter', 'resume_url', 'resume_blob', 'resume_filename',
+            'linkedin_url', 'portfolio_url', 'github_url',
+            'status', 'notes', 'applied_at', 'updated_at'
         )
         read_only_fields = ('id', 'candidate', 'applied_at', 'updated_at')
     

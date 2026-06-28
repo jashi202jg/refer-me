@@ -23,7 +23,8 @@
             [class.invalid]="f['first_name'].invalid && f['first_name'].touched"
           >
           <div class="error" *ngIf="f['first_name'].invalid && f['first_name'].touched">
-            First name is required
+            <span *ngIf="f['first_name'].errors?.['required']">First name is required</span>
+            <span *ngIf="f['first_name'].errors?.['server']">{{ f['first_name'].errors?.['server'] }}</span>
           </div>
         </div>
 
@@ -37,23 +38,9 @@
             [class.invalid]="f['last_name'].invalid && f['last_name'].touched"
           >
           <div class="error" *ngIf="f['last_name'].invalid && f['last_name'].touched">
-            Last name is required
+            <span *ngIf="f['last_name'].errors?.['required']">Last name is required</span>
+            <span *ngIf="f['last_name'].errors?.['server']">{{ f['last_name'].errors?.['server'] }}</span>
           </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="username">Username *</label>
-        <input 
-          type="text" 
-          id="username" 
-          formControlName="username" 
-          class="form-control"
-          [class.invalid]="f['username'].invalid && f['username'].touched"
-        >
-        <div class="error" *ngIf="f['username'].invalid && f['username'].touched">
-          <span *ngIf="f['username'].errors?.['required']">Username is required</span>
-          <span *ngIf="f['username'].errors?.['minlength']">Username must be at least 3 characters</span>
         </div>
       </div>
 
@@ -69,6 +56,7 @@
         <div class="error" *ngIf="f['email'].invalid && f['email'].touched">
           <span *ngIf="f['email'].errors?.['required']">Email is required</span>
           <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+          <span *ngIf="f['email'].errors?.['server']">{{ f['email'].errors?.['server'] }}</span>
         </div>
       </div>
 
@@ -79,7 +67,11 @@
           id="phone" 
           formControlName="phone" 
           class="form-control"
+          [class.invalid]="f['phone'].invalid && f['phone'].touched"
         >
+        <div class="error" *ngIf="f['phone'].invalid && f['phone'].touched">
+          <span *ngIf="f['phone'].errors?.['server']">{{ f['phone'].errors?.['server'] }}</span>
+        </div>
       </div>
 
       <div class="form-group" *ngIf="f['user_type'].value === 'referrer'">
@@ -89,7 +81,11 @@
           id="company" 
           formControlName="company" 
           class="form-control"
+          [class.invalid]="f['company'].invalid && f['company'].touched"
         >
+        <div class="error" *ngIf="f['company'].invalid && f['company'].touched">
+          <span *ngIf="f['company'].errors?.['server']">{{ f['company'].errors?.['server'] }}</span>
+        </div>
       </div>
 
       <div class="form-row">
@@ -105,6 +101,7 @@
           <div class="error" *ngIf="f['password'].invalid && f['password'].touched">
             <span *ngIf="f['password'].errors?.['required']">Password is required</span>
             <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+            <span *ngIf="f['password'].errors?.['server']">{{ f['password'].errors?.['server'] }}</span>
           </div>
         </div>
 
@@ -115,10 +112,12 @@
             id="password2" 
             formControlName="password2" 
             class="form-control"
-            [class.invalid]="f['password2'].invalid && f['password2'].touched"
+            [class.invalid]="(f['password2'].invalid || signupForm.errors?.['mismatch']) && f['password2'].touched"
           >
-          <div class="error" *ngIf="f['password2'].touched && signupForm.errors?.['mismatch']">
-            Passwords do not match
+          <div class="error" *ngIf="f['password2'].touched && (f['password2'].invalid || signupForm.errors?.['mismatch'])">
+            <span *ngIf="f['password2'].errors?.['required']">Confirm password is required</span>
+            <span *ngIf="signupForm.errors?.['mismatch'] && !f['password2'].errors?.['required']">Passwords do not match</span>
+            <span *ngIf="f['password2'].errors?.['server']">{{ f['password2'].errors?.['server'] }}</span>
           </div>
         </div>
       </div>
@@ -127,7 +126,7 @@
         {{ errorMessage }}
       </div>
 
-      <button type="submit" class="btn-primary" [disabled]="signupForm.invalid || isLoading">
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
         <span *ngIf="!isLoading">Sign Up</span>
         <span *ngIf="isLoading">Creating Account...</span>
       </button>

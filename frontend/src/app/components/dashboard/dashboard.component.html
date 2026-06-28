@@ -35,7 +35,7 @@
             <h3>{{ job.title }}</h3>
             <p class="company">{{ job.company }} • {{ job.location }}</p>
             <div class="job-meta">
-              <span class="badge">{{ job.job_type.replace('_', ' ') | titlecase }}</span>
+              <span class="badge">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
               <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
             </div>
             <a [routerLink]="['/jobs', job.id]" class="btn-view">View Details</a>
@@ -95,7 +95,7 @@
             <h3>{{ job.title }}</h3>
             <p class="company">{{ job.company }} • {{ job.location }}</p>
             <div class="job-meta">
-              <span class="badge">{{ job.job_type.replace('_', ' ') | titlecase }}</span>
+              <span class="badge">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
               <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
               <span>{{ job.applications_count }} applications</span>
             </div>

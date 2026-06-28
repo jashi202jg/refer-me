@@ -57,12 +57,12 @@
       <p class="location">📍 {{ job.location }}</p>
 
       <div class="job-details">
-        <span class="badge-secondary">{{ job.job_type.replace('_', ' ') | titlecase }}</span>
+        <span class="badge-secondary">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
         <span *ngIf="job.experience_required">{{ job.experience_required }}</span>
         <span *ngIf="job.salary_range">💰 {{ job.salary_range }}</span>
       </div>
 
-      <div class="skills">
+      <div class="skills" *ngIf="job.skills_list">
         <span class="skill-tag" *ngFor="let skill of job.skills_list.slice(0, 3)">
           {{ skill }}
         </span>
@@ -71,7 +71,7 @@
         </span>
       </div>
 
-      <p class="description">{{ job.description.slice(0, 150) }}...</p>
+      <p class="description" *ngIf="job.description">{{ job.description.length > 150 ? job.description.slice(0, 150) + '...' : job.description }}</p>
 
       <div class="job-footer">
         <span class="posted-by" *ngIf="job.posted_by_details">
