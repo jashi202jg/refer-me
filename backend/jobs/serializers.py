@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Job, Application
+from .models import Job, Application, Notification
 from accounts.serializers import UserSerializer
 
 
@@ -101,3 +101,19 @@ class ApplicationStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ('status', 'notes')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Notification model
+    """
+    actor_name = serializers.CharField(source='actor.get_full_name', read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = (
+            'id', 'recipient', 'actor', 'actor_name', 'title',
+            'message', 'notification_type', 'link', 'is_read', 'created_at'
+        )
+        read_only_fields = ('id', 'recipient', 'actor', 'created_at')
+

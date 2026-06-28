@@ -1,15 +1,20 @@
 from rest_framework import generics, permissions, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
+from django.contrib.auth import get_user_model
 
-from .models import Job, Application
+from .models import Job, Application, Notification
 from .serializers import (
     JobSerializer,
     JobListSerializer,
     ApplicationSerializer,
-    ApplicationStatusUpdateSerializer
+    ApplicationStatusUpdateSerializer,
+    NotificationSerializer
 )
+
+User = get_user_model()
 
 
 class IsReferrerOrReadOnly(permissions.BasePermission):
@@ -44,9 +49,9 @@ class JobListCreateView(generics.ListCreateAPIView):
         queryset = Job.objects.select_related('posted_by').all()
         
         # Filter by status
-        status = self.request.query_params.get('status', None)
-        if status:
-            queryset = queryset.filter(status=status)
+        status_param = self.request.query_params.get('status', None)
+        if status_param:
+            queryset = queryset.filter(status=status_param)
         
         # Filter by job type
         job_type = self.request.query_params.get('job_type', None)
@@ -74,7 +79,22 @@ class JobListCreateView(generics.ListCreateAPIView):
         return queryset
     
     def perform_create(self, serializer):
-        serializer.save(posted_by=self.request.user)
+        job = serializer.save(posted_by=self.request.user)
+        # Auto-create notifications for candidates
+        candidates = User.objects.filter(user_type='candidate')
+        notifications = [
+            Notification(
+                recipient=candidate,
+                actor=self.request.user,
+                title='New Job Opening',
+                message=f"{job.company} posted a new opening for {job.title}",
+                notification_type='new_job',
+                link=f"/jobs/{job.id}"
+            )
+            for candidate in candidates
+        ]
+        if notifications:
+            Notification.objects.bulk_create(notifications)
 
 
 class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -127,24 +147,32 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
                 queryset = queryset.filter(job_id=job_id)
             
             # Filter by status
-            status = self.request.query_params.get('status', None)
-            if status:
-                queryset = queryset.filter(status=status)
+            status_param = self.request.query_params.get('status', None)
+            if status_param:
+                queryset = queryset.filter(status=status_param)
             
             return queryset
     
     def perform_create(self, serializer):
         if not self.request.user.is_candidate:
             raise PermissionDenied("Only candidates can apply for jobs")
-        serializer.save(candidate=self.request.user)
+        application = serializer.save(candidate=self.request.user)
+        # Explicitly load job with posted_by
+        job = Job.objects.select_related('posted_by').get(pk=application.job_id)
+        candidate_name = self.request.user.get_full_name() or self.request.user.username or self.request.user.email
+        Notification.objects.create(
+            recipient=job.posted_by,
+            actor=self.request.user,
+            title='New Application Received',
+            message=f"{candidate_name} applied for {job.title}",
+            notification_type='new_application',
+            link='/applications'
+        )
 
 
 class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint for application details
-    GET: View application details
-    PUT/PATCH: Update application (candidate updates cover letter, referrer updates status)
-    DELETE: Delete application (candidate only)
     """
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -161,7 +189,94 @@ class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
             return ApplicationStatusUpdateSerializer
         return ApplicationSerializer
     
+    def perform_update(self, serializer):
+        old_status = self.get_object().status
+        application = serializer.save()
+        if old_status != application.status and self.request.user.is_referrer:
+            job = application.job
+            Notification.objects.create(
+                recipient=application.candidate,
+                actor=self.request.user,
+                title='Application Status Updated',
+                message=f"Your application for {job.title} at {job.company} status was updated to '{application.get_status_display()}'.",
+                notification_type='status_change',
+                link='/applications'
+            )
+
     def perform_destroy(self, instance):
         if instance.candidate != self.request.user:
             raise PermissionDenied("You can only delete your own applications")
+        job = instance.job
+        candidate_name = self.request.user.get_full_name() or self.request.user.username
         instance.delete()
+        Notification.objects.create(
+            recipient=job.posted_by,
+            actor=self.request.user,
+            title='Application Withdrawn',
+            message=f"{candidate_name} withdrew their application for {job.title}.",
+            notification_type='application_withdrawn',
+            link='/applications'
+        )
+
+
+class NotificationListView(generics.ListAPIView):
+    """
+    GET: List notifications for authenticated user
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+
+class NotificationMarkReadView(APIView):
+    """
+    PATCH: Mark specific notification as read
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            notif = Notification.objects.get(pk=pk, recipient=request.user)
+            notif.is_read = True
+            notif.save()
+            return Response(NotificationSerializer(notif).data)
+        except Notification.DoesNotExist:
+            return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class NotificationMarkAllReadView(APIView):
+    """
+    POST: Mark all notifications as read for current user
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return Response({'message': 'All notifications marked as read'})
+
+
+class NotificationUnreadCountView(APIView):
+    """
+    GET: Get unread notification count
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+        return Response({'unread_count': count})
+
+
+class NotificationClearAllView(APIView):
+    """
+    DELETE: Delete all notifications for current user
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        Notification.objects.filter(recipient=request.user).delete()
+        return Response({'message': 'All notifications cleared'})
+
+

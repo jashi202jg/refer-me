@@ -25,6 +25,46 @@
         <a routerLink="/signup" routerLinkActive="active" class="btn-signup">Sign Up</a>
       </div>
 
+      <!-- Notifications Dropdown -->
+      <div class="notification-wrapper" *ngIf="authService.isLoggedIn">
+        <button type="button" class="btn-notification" (click)="toggleNotifications()" title="Notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bell-icon">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+          </svg>
+          <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+
+        <div class="notification-dropdown" *ngIf="showNotificationsDropdown">
+          <div class="dropdown-header">
+            <h4>Notifications</h4>
+            <div class="dropdown-actions" *ngIf="notifications.length > 0">
+              <button type="button" class="btn-text" (click)="markAllRead()">Mark all read</button>
+              <button type="button" class="btn-text" (click)="clearNotifications()">Clear</button>
+            </div>
+          </div>
+
+          <div class="dropdown-body">
+            <div *ngIf="notifications.length === 0" class="empty-notifications">
+              <p>No notifications yet</p>
+            </div>
+            <div 
+              *ngFor="let notif of notifications" 
+              class="notification-item" 
+              [class.unread]="!notif.isRead"
+              (click)="onNotificationClick(notif)"
+            >
+              <div class="notif-content">
+                <span class="notif-title">{{ notif.title }}</span>
+                <p class="notif-message">{{ notif.message }}</p>
+                <span class="notif-time">{{ notif.timestamp | date:'shortTime' }}</span>
+              </div>
+              <span class="unread-dot" *ngIf="!notif.isRead"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <button type="button" class="theme-toggle-switch" (click)="toggleTheme()" [class.is-dark]="themeService.isDarkMode" [title]="themeService.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle theme">
         <span class="toggle-track">
           <svg class="toggle-icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

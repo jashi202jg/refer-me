@@ -2,8 +2,8 @@
 
 <div class="job-form-container">
   <div class="job-form-card">
-    <h1>Post a New Job</h1>
-    <p class="subtitle">Help candidates find their dream opportunity</p>
+    <h1>{{ isEditMode ? 'Edit Job Posting' : 'Post a New Job' }}</h1>
+    <p class="subtitle">{{ isEditMode ? 'Update the details of your job opening' : 'Help candidates find their dream opportunity' }}</p>
 
     <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
@@ -143,10 +143,10 @@
 
       <div class="form-actions">
         <button type="submit" class="btn-primary" [disabled]="jobForm.invalid || isSubmitting">
-          <span *ngIf="!isSubmitting">Post Job</span>
-          <span *ngIf="isSubmitting">Posting...</span>
+          <span *ngIf="!isSubmitting">{{ isEditMode ? 'Save Changes' : 'Post Job' }}</span>
+          <span *ngIf="isSubmitting">{{ isEditMode ? 'Saving...' : 'Posting...' }}</span>
         </button>
-        <a routerLink="/jobs" class="btn-secondary">Cancel</a>
+        <a [routerLink]="isEditMode && jobId ? ['/jobs', jobId] : '/jobs'" class="btn-secondary">Cancel</a>
       </div>
     </form>
   </div>

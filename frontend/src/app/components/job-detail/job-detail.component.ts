@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { JobService } from '../../services/job.service';
 import { ApplicationService } from '../../services/application.service';
 import { AuthService } from '../../services/auth.service';
+import { ModalService } from '../../services/modal.service';
 import { Job } from '../../models/job.model';
 import { NavbarComponent } from '../navbar/navbar.component';
 
@@ -33,6 +34,7 @@ export class JobDetailComponent implements OnInit {
     private jobService: JobService,
     private applicationService: ApplicationService,
     public authService: AuthService,
+    private modalService: ModalService,
     private fb: FormBuilder
   ) {
     this.applicationForm = this.fb.group({
@@ -126,14 +128,20 @@ export class JobDetailComponent implements OnInit {
     }
   }
 
-  deleteJob() {
-    if (this.job && confirm('Are you sure you want to delete this job?')) {
+  async deleteJob() {
+    if (!this.job) return;
+    const confirmed = await this.modalService.danger(
+      'Delete Job Opening',
+      'Are you sure you want to delete this job posting? This action cannot be undone.',
+      'Delete Job'
+    );
+    if (confirmed) {
       this.jobService.deleteJob(this.job.id).subscribe({
         next: () => {
           this.router.navigate(['/jobs']);
         },
         error: (error) => {
-          alert('Error deleting job: ' + (error.error?.message || 'Unknown error'));
+          this.modalService.alert('Error', 'Error deleting job: ' + (error.error?.message || 'Unknown error'));
         }
       });
     }

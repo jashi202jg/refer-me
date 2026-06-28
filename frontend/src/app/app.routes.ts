@@ -16,6 +16,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'jobs', component: JobListComponent, canActivate: [authGuard] },
   { path: 'jobs/:id', component: JobDetailComponent, canActivate: [authGuard] },
+  { path: 'jobs/:id/edit', component: JobFormComponent, canActivate: [authGuard, referrerGuard] },
   { path: 'post-job', component: JobFormComponent, canActivate: [authGuard, referrerGuard] },
   { path: 'applications', component: ApplicationsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/login' }

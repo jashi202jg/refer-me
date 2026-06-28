@@ -3,7 +3,12 @@ from .views import (
     JobListCreateView,
     JobDetailView,
     ApplicationListCreateView,
-    ApplicationDetailView
+    ApplicationDetailView,
+    NotificationListView,
+    NotificationMarkReadView,
+    NotificationMarkAllReadView,
+    NotificationUnreadCountView,
+    NotificationClearAllView
 )
 
 urlpatterns = [
@@ -14,4 +19,11 @@ urlpatterns = [
     # Application endpoints
     path('applications/', ApplicationListCreateView.as_view(), name='application-list-create'),
     path('applications/<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
+    
+    # Notification endpoints
+    path('notifications/', NotificationListView.as_view(), name='notification-list'),
+    path('notifications/<int:pk>/read/', NotificationMarkReadView.as_view(), name='notification-mark-read'),
+    path('notifications/mark-all-read/', NotificationMarkAllReadView.as_view(), name='notification-mark-all-read'),
+    path('notifications/unread-count/', NotificationUnreadCountView.as_view(), name='notification-unread-count'),
+    path('notifications/clear-all/', NotificationClearAllView.as_view(), name='notification-clear-all'),
 ]
