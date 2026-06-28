@@ -312,3 +312,53 @@
     text-align: center;
   }
 }
+
+/* Dark Mode Encapsulated Styles */
+:host-context(body.dark-theme) .job-detail,
+:host-context(body.dark-theme) .application-form {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+:host-context(body.dark-theme) .job-header h1,
+:host-context(body.dark-theme) .job-section h2,
+:host-context(body.dark-theme) .application-form h2 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .job-header,
+:host-context(body.dark-theme) .actions {
+  border-bottom-color: #334155;
+  border-top-color: #334155;
+}
+
+:host-context(body.dark-theme) .company,
+:host-context(body.dark-theme) .meta-item,
+:host-context(body.dark-theme) .meta-item strong,
+:host-context(body.dark-theme) .description,
+:host-context(body.dark-theme) .posted-date,
+:host-context(body.dark-theme) .file-name-display,
+:host-context(body.dark-theme) label,
+:host-context(body.dark-theme) small {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .job-meta,
+:host-context(body.dark-theme) .file-name-display {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:host-context(body.dark-theme) .form-control {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+:host-context(body.dark-theme) .btn-back {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}

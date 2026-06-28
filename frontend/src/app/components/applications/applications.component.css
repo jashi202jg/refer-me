@@ -227,3 +227,43 @@
     text-align: center;
   }
 }
+
+/* Dark Mode Encapsulated Styles */
+:host-context(body.dark-theme) .applications-header h1,
+:host-context(body.dark-theme) .application-header h2,
+:host-context(body.dark-theme) .application-content h3,
+:host-context(body.dark-theme) .empty-state h3 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .application-card,
+:host-context(body.dark-theme) .empty-state {
+  background: #1e293b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+:host-context(body.dark-theme) .application-header,
+:host-context(body.dark-theme) .actions {
+  border-bottom-color: #334155;
+  border-top-color: #334155;
+}
+
+:host-context(body.dark-theme) .subtitle,
+:host-context(body.dark-theme) .company,
+:host-context(body.dark-theme) .detail-row span,
+:host-context(body.dark-theme) .cover-letter,
+:host-context(body.dark-theme) .empty-state p,
+:host-context(body.dark-theme) .loading {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .detail-row strong {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .application-details,
+:host-context(body.dark-theme) .cover-letter {
+  background: #0f172a;
+  border: 1px solid #334155;
+}

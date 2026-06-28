@@ -115,3 +115,35 @@
     padding: 30px 20px;
   }
 }
+
+/* Dark Mode Encapsulated Styles */
+:host-context(body.dark-theme) .login-container {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+}
+
+:host-context(body.dark-theme) .login-card {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+:host-context(body.dark-theme) .login-card h2 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .subtitle,
+:host-context(body.dark-theme) label,
+:host-context(body.dark-theme) .signup-link {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .form-control {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+:host-context(body.dark-theme) .signup-link a {
+  color: #818cf8;
+}

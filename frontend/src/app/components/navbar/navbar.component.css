@@ -22,10 +22,80 @@
   text-decoration: none;
 }
 
+.nav-links-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .nav-links {
   display: flex;
   align-items: center;
   gap: 25px;
+}
+
+.theme-toggle-switch {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-track {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  background: #cbd5e1;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  transition: background 0.3s ease;
+}
+
+.theme-toggle-switch.is-dark .toggle-track {
+  background: #334155;
+}
+
+.toggle-icon {
+  width: 14px;
+  height: 14px;
+  z-index: 1;
+  user-select: none;
+  display: block;
+  transition: color 0.3s ease;
+}
+
+.sun-icon {
+  color: #f59e0b;
+}
+
+.moon-icon {
+  color: #64748b;
+}
+
+.theme-toggle-switch.is-dark .moon-icon {
+  color: #cbd5e1;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-switch.is-dark .toggle-thumb {
+  transform: translateX(28px);
+  background: #1e293b;
 }
 
 .nav-links a {
@@ -122,4 +192,36 @@
     padding-top: 10px;
     margin-top: 10px;
   }
+}
+
+/* Dark Mode Encapsulated Styles */
+:host-context(body.dark-theme) .navbar {
+  background: #1e293b;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+:host-context(body.dark-theme) .nav-links a {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .nav-links a:hover {
+  color: #818cf8;
+}
+
+:host-context(body.dark-theme) .nav-links a.active {
+  color: #818cf8;
+  border-bottom-color: #818cf8;
+}
+
+:host-context(body.dark-theme) .user-name {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .user-menu {
+  border-left-color: #334155;
+  border-top-color: #334155;
+}
+
+:host-context(body.dark-theme) .toggle-track {
+  background: #334155;
 }

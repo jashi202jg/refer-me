@@ -135,3 +135,27 @@ textarea.form-control {
     flex-direction: column;
   }
 }
+
+/* Dark Mode Encapsulated Styles */
+:host-context(body.dark-theme) .job-form-card {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+:host-context(body.dark-theme) .job-form-card h1 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .subtitle,
+:host-context(body.dark-theme) label,
+:host-context(body.dark-theme) small {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .form-control {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}

@@ -9,8 +9,141 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: #f5f5f5;
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 html, body {
   height: 100%;
+}
+
+/* Dark Theme Overrides */
+body.dark-theme {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+body.dark-theme .navbar {
+  background: #1e293b;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid #334155;
+}
+
+body.dark-theme .nav-links a {
+  color: #cbd5e1;
+}
+
+body.dark-theme .nav-links a:hover,
+body.dark-theme .nav-links a.active {
+  color: #818cf8;
+  border-color: #818cf8;
+}
+
+body.dark-theme .user-name {
+  color: #f8fafc;
+}
+
+body.dark-theme .user-menu {
+  border-left-color: #334155;
+}
+
+body.dark-theme .btn-theme-toggle {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+body.dark-theme .btn-theme-toggle:hover {
+  background: #475569;
+}
+
+/* Cards and Containers in Dark Mode */
+body.dark-theme .job-card,
+body.dark-theme .application-card,
+body.dark-theme .signup-card,
+body.dark-theme .login-card,
+body.dark-theme .job-detail,
+body.dark-theme .application-form,
+body.dark-theme .job-form-card,
+body.dark-theme .filters-section,
+body.dark-theme .section {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4 {
+  color: #f8fafc;
+}
+
+body.dark-theme p,
+body.dark-theme .subtitle,
+body.dark-theme .company,
+body.dark-theme .location,
+body.dark-theme .description,
+body.dark-theme .meta-item,
+body.dark-theme .posted-by,
+body.dark-theme .applications-count,
+body.dark-theme .posted-date,
+body.dark-theme label,
+body.dark-theme small {
+  color: #cbd5e1;
+}
+
+/* Inputs and Selects in Dark Mode */
+body.dark-theme .form-control,
+body.dark-theme input[type="text"],
+body.dark-theme input[type="email"],
+body.dark-theme input[type="password"],
+body.dark-theme input[type="tel"],
+body.dark-theme input[type="url"],
+body.dark-theme select,
+body.dark-theme textarea,
+body.dark-theme .filter-select,
+body.dark-theme .search-input {
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid #334155;
+}
+
+body.dark-theme .form-control:focus,
+body.dark-theme select:focus,
+body.dark-theme textarea:focus,
+body.dark-theme .filter-select:focus,
+body.dark-theme .search-input:focus {
+  border-color: #818cf8;
+}
+
+body.dark-theme .job-meta,
+body.dark-theme .job-details,
+body.dark-theme .application-meta {
+  background: transparent !important;
+  border: none !important;
+}
+
+body.dark-theme .file-name-display {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+body.dark-theme .badge-secondary {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+body.dark-theme .btn-back,
+body.dark-theme .btn-clear,
+body.dark-theme .btn-secondary {
+  background: #334155;
+  color: #f8fafc;
+  border: 1px solid #475569;
+}
+
+body.dark-theme .btn-back:hover,
+body.dark-theme .btn-clear:hover,
+body.dark-theme .btn-secondary:hover {
+  background: #475569;
 }

@@ -257,3 +257,50 @@
     align-items: stretch;
   }
 }
+
+/* Dark Mode Encapsulated Styles */
+:host-context(body.dark-theme) .jobs-header h1,
+:host-context(body.dark-theme) .job-card h2,
+:host-context(body.dark-theme) .empty-state h3 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-theme) .filters-section,
+:host-context(body.dark-theme) .job-card {
+  background: #1e293b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+:host-context(body.dark-theme) .company,
+:host-context(body.dark-theme) .location,
+:host-context(body.dark-theme) .job-details,
+:host-context(body.dark-theme) .description,
+:host-context(body.dark-theme) .job-footer,
+:host-context(body.dark-theme) .checkbox-label,
+:host-context(body.dark-theme) .empty-state,
+:host-context(body.dark-theme) .empty-state p,
+:host-context(body.dark-theme) .loading {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .search-input,
+:host-context(body.dark-theme) .filter-select {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+:host-context(body.dark-theme) .badge-secondary {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-theme) .skill-tag {
+  background: #334155;
+  color: #a5b4fc;
+}
+
+:host-context(body.dark-theme) .job-footer {
+  border-top-color: #334155;
+}

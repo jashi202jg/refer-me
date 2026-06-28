@@ -4,24 +4,39 @@
       <a routerLink="/dashboard">ReferMe</a>
     </div>
 
-    <div class="nav-links" *ngIf="authService.isLoggedIn">
-      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/jobs" routerLinkActive="active">Jobs</a>
-      <a routerLink="/post-job" routerLinkActive="active" *ngIf="authService.isReferrer">Post Job</a>
-      <a routerLink="/applications" routerLinkActive="active">Applications</a>
-      
-      <div class="user-menu">
-        <span class="user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
-        <span class="user-badge" [class.badge-referrer]="currentUser?.user_type === 'referrer'" [class.badge-candidate]="currentUser?.user_type === 'candidate'">
-          {{ currentUser?.user_type }}
-        </span>
-        <button class="btn-logout" (click)="logout()">Logout</button>
+    <div class="nav-links-right">
+      <div class="nav-links" *ngIf="authService.isLoggedIn">
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/jobs" routerLinkActive="active">Jobs</a>
+        <a routerLink="/post-job" routerLinkActive="active" *ngIf="authService.isReferrer">Post Job</a>
+        <a routerLink="/applications" routerLinkActive="active">Applications</a>
+        
+        <div class="user-menu">
+          <span class="user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
+          <span class="user-badge" [class.badge-referrer]="currentUser?.user_type === 'referrer'" [class.badge-candidate]="currentUser?.user_type === 'candidate'">
+            {{ currentUser?.user_type }}
+          </span>
+          <button class="btn-logout" (click)="logout()">Logout</button>
+        </div>
       </div>
-    </div>
 
-    <div class="nav-links" *ngIf="!authService.isLoggedIn">
-      <a routerLink="/login" routerLinkActive="active">Login</a>
-      <a routerLink="/signup" routerLinkActive="active" class="btn-signup">Sign Up</a>
+      <div class="nav-links" *ngIf="!authService.isLoggedIn">
+        <a routerLink="/login" routerLinkActive="active">Login</a>
+        <a routerLink="/signup" routerLinkActive="active" class="btn-signup">Sign Up</a>
+      </div>
+
+      <button type="button" class="theme-toggle-switch" (click)="toggleTheme()" [class.is-dark]="themeService.isDarkMode" [title]="themeService.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle theme">
+        <span class="toggle-track">
+          <svg class="toggle-icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+          <svg class="toggle-icon moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+          <span class="toggle-thumb"></span>
+        </span>
+      </button>
     </div>
   </div>
 </nav>
