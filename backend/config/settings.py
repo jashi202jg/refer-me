@@ -86,18 +86,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# SQL Server Configuration
+# PostgreSQL Configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'mssql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DATABASE_NAME', default='referme_db'),
-        'USER': config('DATABASE_USER', default='sa'),
+        'USER': config('DATABASE_USER', default='postgres'),
         'PASSWORD': config('DATABASE_PASSWORD', default=''),
         'HOST': config('DATABASE_HOST', default='localhost'),
-        # 'PORT': config('DATABASE_PORT', default='1433'),
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',
-        },
+        'PORT': config('DATABASE_PORT', default='5433'),
     }
 }
 
