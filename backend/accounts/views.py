@@ -4,7 +4,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, get_user_model
 
-from .serializers import SignupSerializer, LoginSerializer, UserSerializer
+from .serializers import SignupSerializer, LoginSerializer, UserSerializer, CompanySerializer
+from .models import Company
 
 User = get_user_model()
 
@@ -81,3 +82,28 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     
     def get_object(self):
         return self.request.user
+
+
+class CompanyListView(generics.ListAPIView):
+    """
+    API endpoint for listing and auto-seeding standard companies
+    """
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+    
+    def get_queryset(self):
+        # Prepopulate with defaults if empty
+        if Company.objects.count() == 0:
+            defaults = [
+                {"name": "Google", "website": "https://google.com"},
+                {"name": "Stripe", "website": "https://stripe.com"},
+                {"name": "Meta", "website": "https://meta.com"},
+                {"name": "Amazon", "website": "https://amazon.com"},
+                {"name": "Microsoft", "website": "https://microsoft.com"},
+                {"name": "Netflix", "website": "https://netflix.com"},
+                {"name": "Apple", "website": "https://apple.com"},
+            ]
+            for d in defaults:
+                Company.objects.get_or_create(name=d["name"], website=d["website"])
+        return Company.objects.all()

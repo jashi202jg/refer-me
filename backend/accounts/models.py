@@ -36,3 +36,23 @@ class User(AbstractUser):
     @property
     def is_candidate(self):
         return self.user_type == 'candidate'
+        
+    def save(self, *args, **kwargs):
+        if self.company:
+            company_name_stripped = self.company.strip()
+            if company_name_stripped:
+                Company.objects.get_or_create(name=company_name_stripped)
+        super().save(*args, **kwargs)
+
+
+class Company(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    website = models.URLField(max_length=200, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'companies'
+        ordering = ['name']
+        
+    def __str__(self):
+        return self.name

@@ -2,6 +2,7 @@ import re
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from .models import Company
 
 User = get_user_model()
 
@@ -94,3 +95,12 @@ class LoginSerializer(serializers.Serializer):
         write_only=True,
         style={'input_type': 'password'}
     )
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    """
+    Serializer for Company model
+    """
+    class Meta:
+        model = Company
+        fields = ('id', 'name', 'website')

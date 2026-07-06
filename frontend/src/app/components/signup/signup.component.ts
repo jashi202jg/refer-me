@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -11,15 +11,17 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   signupForm: FormGroup;
   errorMessage: string = '';
   isLoading: boolean = false;
+  companies: { id: number; name: string; website?: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -29,8 +31,29 @@ export class SignupComponent {
       last_name: ['', Validators.required],
       user_type: ['candidate', Validators.required],
       phone: [''],
-      company: ['']
+      company: [''],
+      custom_company: ['']
     }, { validators: this.passwordMatchValidator });
+  }
+
+  ngOnInit() {
+    // Read type parameter to pre-select role
+    this.route.queryParams.subscribe(params => {
+      const type = params['type'];
+      if (type === 'candidate' || type === 'referrer') {
+        this.signupForm.patchValue({ user_type: type });
+      }
+    });
+
+    // Load companies list from backend
+    this.authService.getCompanies().subscribe({
+      next: (list) => {
+        this.companies = list;
+      },
+      error: (err) => {
+        console.error('Failed to load companies', err);
+      }
+    });
   }
 
   passwordMatchValidator(g: FormGroup) {
@@ -44,10 +67,31 @@ export class SignupComponent {
       return;
     }
 
+    const formValue = { ...this.signupForm.value };
+
+    // Custom company validation for referrers
+    if (formValue.user_type === 'referrer') {
+      if (!formValue.company) {
+        this.errorMessage = 'Please select a company.';
+        return;
+      }
+      if (formValue.company === 'Other') {
+        if (!formValue.custom_company || !formValue.custom_company.trim()) {
+          this.errorMessage = 'Please specify your company name.';
+          return;
+        }
+        formValue.company = formValue.custom_company.trim();
+      }
+    } else {
+      formValue.company = '';
+    }
+
+    delete formValue.custom_company;
+
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.signup(this.signupForm.value).subscribe({
+    this.authService.signup(formValue).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.router.navigate(['/dashboard']);

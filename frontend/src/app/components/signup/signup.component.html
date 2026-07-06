@@ -1,139 +1,225 @@
-<div class="signup-container">
-  <div class="signup-card">
-    <h2>Sign Up for ReferMe</h2>
-    <p class="subtitle">Create your account to get started</p>
+<div class="auth-split-container">
+  
+  <!-- Left Side: Form -->
+  <div class="auth-form-column">
+    
+    <a routerLink="/" class="btn-back">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Back to Refer Me</span>
+    </a>
 
-    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="user_type">I am a:</label>
-        <select id="user_type" formControlName="user_type" class="form-control">
-          <option value="candidate">Candidate (Looking for jobs)</option>
-          <option value="referrer">Referrer (Posting jobs)</option>
-        </select>
+    <div class="auth-form-wrapper">
+      <div class="brand-title">
+        Refer <span class="accent">Me</span>
+      </div>
+      
+      <h2 class="auth-heading">Create account</h2>
+      <p class="auth-subtitle">Get started with ReferMe today.</p>
+
+      <!-- Toggle Switch for Role -->
+      <div class="toggle-switch-wrapper">
+        <div class="toggle-switch-container">
+          <button type="button" 
+                  class="toggle-switch-option" 
+                  [class.active]="f['user_type'].value === 'candidate'"
+                  (click)="signupForm.patchValue({user_type: 'candidate'})">
+            Job Seeker
+          </button>
+          <button type="button" 
+                  class="toggle-switch-option" 
+                  [class.active]="f['user_type'].value === 'referrer'"
+                  (click)="signupForm.patchValue({user_type: 'referrer'})">
+            Referrer
+          </button>
+        </div>
       </div>
 
-      <div class="form-row">
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="main-auth-form">
+        
+        <!-- Name Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="first_name">First Name *</label>
+            <input 
+              type="text" 
+              id="first_name" 
+              formControlName="first_name" 
+              class="form-control"
+              placeholder="First name"
+              [class.invalid]="f['first_name'].invalid && f['first_name'].touched"
+            >
+            <div class="error" *ngIf="f['first_name'].invalid && f['first_name'].touched">
+              <span *ngIf="f['first_name'].errors?.['required']">Required</span>
+              <span *ngIf="f['first_name'].errors?.['server']">{{ f['first_name'].errors?.['server'] }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="last_name">Last Name *</label>
+            <input 
+              type="text" 
+              id="last_name" 
+              formControlName="last_name" 
+              class="form-control"
+              placeholder="Last name"
+              [class.invalid]="f['last_name'].invalid && f['last_name'].touched"
+            >
+            <div class="error" *ngIf="f['last_name'].invalid && f['last_name'].touched">
+              <span *ngIf="f['last_name'].errors?.['required']">Required</span>
+              <span *ngIf="f['last_name'].errors?.['server']">{{ f['last_name'].errors?.['server'] }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email & Phone -->
         <div class="form-group">
-          <label for="first_name">First Name *</label>
+          <label for="email">Email *</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            class="form-control"
+            placeholder="you@email.com"
+            [class.invalid]="f['email'].invalid && f['email'].touched"
+          >
+          <div class="error" *ngIf="f['email'].invalid && f['email'].touched">
+            <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+            <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+            <span *ngIf="f['email'].errors?.['server']">{{ f['email'].errors?.['server'] }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            formControlName="phone" 
+            class="form-control"
+            placeholder="+1 (555) 000-0000"
+            [class.invalid]="f['phone'].invalid && f['phone'].touched"
+          >
+          <div class="error" *ngIf="f['phone'].invalid && f['phone'].touched">
+            <span *ngIf="f['phone'].errors?.['server']">{{ f['phone'].errors?.['server'] }}</span>
+          </div>
+        </div>
+
+        <!-- Company Name (Show only if Referrer selected) -->
+        <div class="form-group" *ngIf="f['user_type'].value === 'referrer'">
+          <label for="company">Company *</label>
+          <select id="company" formControlName="company" class="form-control" [class.invalid]="f['company'].invalid && f['company'].touched">
+            <option value="" disabled selected>Select your company</option>
+            <option *ngFor="let comp of companies" [value]="comp.name">{{ comp.name }}</option>
+            <option value="Other">Other (Not listed)</option>
+          </select>
+          <div class="error" *ngIf="f['company'].invalid && f['company'].touched">
+            <span *ngIf="f['company'].errors?.['server']">{{ f['company'].errors?.['server'] }}</span>
+          </div>
+        </div>
+
+        <!-- Custom Company Textbox (Show only if 'Other' selected) -->
+        <div class="form-group" *ngIf="f['user_type'].value === 'referrer' && f['company'].value === 'Other'">
+          <label for="custom_company">Specify Company Name *</label>
           <input 
             type="text" 
-            id="first_name" 
-            formControlName="first_name" 
+            id="custom_company" 
+            formControlName="custom_company" 
             class="form-control"
-            [class.invalid]="f['first_name'].invalid && f['first_name'].touched"
+            placeholder="Enter company name"
+            [class.invalid]="f['custom_company'].invalid && f['custom_company'].touched"
           >
-          <div class="error" *ngIf="f['first_name'].invalid && f['first_name'].touched">
-            <span *ngIf="f['first_name'].errors?.['required']">First name is required</span>
-            <span *ngIf="f['first_name'].errors?.['server']">{{ f['first_name'].errors?.['server'] }}</span>
+        </div>
+
+        <!-- Passwords -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input 
+              type="password" 
+              id="password" 
+              formControlName="password" 
+              class="form-control"
+              placeholder="Min 6 chars"
+              [class.invalid]="f['password'].invalid && f['password'].touched"
+            >
+            <div class="error" *ngIf="f['password'].invalid && f['password'].touched">
+              <span *ngIf="f['password'].errors?.['required']">Required</span>
+              <span *ngIf="f['password'].errors?.['minlength']">Min 6 chars</span>
+              <span *ngIf="f['password'].errors?.['server']">{{ f['password'].errors?.['server'] }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password2">Confirm *</label>
+            <input 
+              type="password" 
+              id="password2" 
+              formControlName="password2" 
+              class="form-control"
+              placeholder="Confirm"
+              [class.invalid]="(f['password2'].invalid || signupForm.errors?.['mismatch']) && f['password2'].touched"
+            >
+            <div class="error" *ngIf="f['password2'].touched && (f['password2'].invalid || signupForm.errors?.['mismatch'])">
+              <span *ngIf="f['password2'].errors?.['required']">Required</span>
+              <span *ngIf="signupForm.errors?.['mismatch'] && !f['password2'].errors?.['required']">Mismatch</span>
+              <span *ngIf="f['password2'].errors?.['server']">{{ f['password2'].errors?.['server'] }}</span>
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="last_name">Last Name *</label>
-          <input 
-            type="text" 
-            id="last_name" 
-            formControlName="last_name" 
-            class="form-control"
-            [class.invalid]="f['last_name'].invalid && f['last_name'].touched"
-          >
-          <div class="error" *ngIf="f['last_name'].invalid && f['last_name'].touched">
-            <span *ngIf="f['last_name'].errors?.['required']">Last name is required</span>
-            <span *ngIf="f['last_name'].errors?.['server']">{{ f['last_name'].errors?.['server'] }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input 
-          type="email" 
-          id="email" 
-          formControlName="email" 
-          class="form-control"
-          [class.invalid]="f['email'].invalid && f['email'].touched"
-        >
-        <div class="error" *ngIf="f['email'].invalid && f['email'].touched">
-          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
-          <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
-          <span *ngIf="f['email'].errors?.['server']">{{ f['email'].errors?.['server'] }}</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Phone</label>
-        <input 
-          type="tel" 
-          id="phone" 
-          formControlName="phone" 
-          class="form-control"
-          [class.invalid]="f['phone'].invalid && f['phone'].touched"
-        >
-        <div class="error" *ngIf="f['phone'].invalid && f['phone'].touched">
-          <span *ngIf="f['phone'].errors?.['server']">{{ f['phone'].errors?.['server'] }}</span>
-        </div>
-      </div>
-
-      <div class="form-group" *ngIf="f['user_type'].value === 'referrer'">
-        <label for="company">Company</label>
-        <input 
-          type="text" 
-          id="company" 
-          formControlName="company" 
-          class="form-control"
-          [class.invalid]="f['company'].invalid && f['company'].touched"
-        >
-        <div class="error" *ngIf="f['company'].invalid && f['company'].touched">
-          <span *ngIf="f['company'].errors?.['server']">{{ f['company'].errors?.['server'] }}</span>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="password">Password *</label>
-          <input 
-            type="password" 
-            id="password" 
-            formControlName="password" 
-            class="form-control"
-            [class.invalid]="f['password'].invalid && f['password'].touched"
-          >
-          <div class="error" *ngIf="f['password'].invalid && f['password'].touched">
-            <span *ngIf="f['password'].errors?.['required']">Password is required</span>
-            <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</span>
-            <span *ngIf="f['password'].errors?.['server']">{{ f['password'].errors?.['server'] }}</span>
-          </div>
+        <!-- Terms Agreement text -->
+        <div class="form-options">
+          <label class="checkbox-container text-muted">
+            <input type="checkbox" required checked id="agree_terms">
+            <span class="checkmark"></span>
+            <span class="agree-label">
+              By signing up I agree to the <a routerLink="/terms" target="_blank">terms and conditions</a> and the <a routerLink="/privacy" target="_blank">privacy policy</a>.
+            </span>
+          </label>
         </div>
 
-        <div class="form-group">
-          <label for="password2">Confirm Password *</label>
-          <input 
-            type="password" 
-            id="password2" 
-            formControlName="password2" 
-            class="form-control"
-            [class.invalid]="(f['password2'].invalid || signupForm.errors?.['mismatch']) && f['password2'].touched"
-          >
-          <div class="error" *ngIf="f['password2'].touched && (f['password2'].invalid || signupForm.errors?.['mismatch'])">
-            <span *ngIf="f['password2'].errors?.['required']">Confirm password is required</span>
-            <span *ngIf="signupForm.errors?.['mismatch'] && !f['password2'].errors?.['required']">Passwords do not match</span>
-            <span *ngIf="f['password2'].errors?.['server']">{{ f['password2'].errors?.['server'] }}</span>
-          </div>
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
         </div>
+
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Create account</span>
+          <span *ngIf="isLoading">Creating account...</span>
+        </button>
+      </form>
+
+      <div class="redirect-link">
+        Already have an account? <a routerLink="/login">Log in</a>
       </div>
-
-      <div class="error-message" *ngIf="errorMessage">
-        {{ errorMessage }}
+      
+      <div class="auth-footer">
+        © 2026 ReferMe · <a routerLink="/privacy">Privacy</a> · <a routerLink="/terms">Terms</a>
       </div>
+    </div>
+  </div>
 
-      <button type="submit" class="btn-primary" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Sign Up</span>
-        <span *ngIf="isLoading">Creating Account...</span>
-      </button>
-    </form>
+  <!-- Right Side: Info/Visual Panel -->
+  <div class="auth-info-column">
+    <div class="info-bg-circles">
+      <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div>
+    </div>
+    
+    <div class="info-content-wrapper" *ngIf="f['user_type'].value === 'candidate'">
+      <h2 class="info-title">Your Resume Deserves More Than a Black Hole.</h2>
+      <p class="info-subtitle">
+        Connect directly with real employees who can get you noticed and land you interviews.
+      </p>
+    </div>
 
-    <div class="login-link">
-      Already have an account? <a routerLink="/login">Login here</a>
+    <div class="info-content-wrapper" *ngIf="f['user_type'].value === 'referrer'">
+      <h2 class="info-title">Refer top talent and claim your company's referral bonus.</h2>
+      <p class="info-subtitle">
+        Create your account and start referring!
+      </p>
     </div>
   </div>
 </div>

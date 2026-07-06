@@ -121,6 +121,13 @@ export class AuthService {
   }
 
   /**
+   * Get list of companies
+   */
+  getCompanies(): Observable<{ id: number; name: string; website?: string }[]> {
+    return this.http.get<{ id: number; name: string; website?: string }[]>(`${this.apiUrl}/companies/`);
+  }
+
+  /**
    * Update user profile
    */
   updateProfile(userData: Partial<User>): Observable<User> {

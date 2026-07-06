@@ -1,0 +1,320 @@
+<!-- Main Container -->
+<div class="landing-page" [class.dark-theme]="themeService.isDarkMode">
+  
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a routerLink="/" class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Refer<span class="logo-accent">Me</span></span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="nav-menu" [class.active]="isMenuOpen">
+        <a href="#" class="nav-item" (click)="scrollTo('problem', $event); isMenuOpen = false">Features</a>
+        <a href="#" class="nav-item" (click)="scrollTo('problem', $event); isMenuOpen = false">The Problem</a>
+        <a href="#" class="nav-item" (click)="scrollTo('stats', $event); isMenuOpen = false">Reality</a>
+        <a href="#" class="nav-item" (click)="scrollTo('cta', $event); isMenuOpen = false">Join</a>
+        
+        <div class="nav-auth">
+          <a routerLink="/login" class="btn-login">Log In</a>
+          <button (click)="getStarted()" class="btn-signup">Sign Up</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="navbar-actions">
+        <!-- Theme Toggle -->
+        <button class="btn-theme-toggle" (click)="toggleTheme()" aria-label="Toggle theme">
+          <svg *ngIf="!themeService.isDarkMode" class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg *ngIf="themeService.isDarkMode" class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Toggle -->
+        <button class="btn-mobile-toggle" (click)="toggleMenu()" aria-label="Toggle menu">
+          <span class="bar" [class.open]="isMenuOpen"></span>
+          <span class="bar" [class.open]="isMenuOpen"></span>
+          <span class="bar" [class.open]="isMenuOpen"></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <div class="hero-bg-glow"></div>
+    <div class="hero-container">
+      
+      <!-- Role Switcher -->
+      <div class="role-switcher-container">
+        <div class="role-card" 
+             [class.active]="selectedRole === 'candidate'" 
+             (click)="selectRole('candidate')">
+          <div class="role-icon-wrapper search-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="role-icon">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <div class="role-content">
+            <h3>I'm Looking for a Job</h3>
+            <p>Find opportunities through real employee referrals</p>
+          </div>
+          <div class="checkmark-badge" *ngIf="selectedRole === 'candidate'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <div class="role-card" 
+             [class.active]="selectedRole === 'referrer'" 
+             (click)="selectRole('referrer')">
+          <div class="role-icon-wrapper refer-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="role-icon">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="role-content">
+            <h3>I Can Refer Candidates</h3>
+            <p>Earn rewards by connecting talent with opportunities</p>
+          </div>
+          <div class="checkmark-badge" *ngIf="selectedRole === 'referrer'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Copy -->
+      <h1 class="hero-title">
+        Your Resume Deserves <br>
+        <span class="gradient-text">More Than a Black Hole</span>
+      </h1>
+      <p class="hero-subtitle">
+        Stop sending applications into the void. Connect directly with real employees who can get you noticed and land you interviews.
+      </p>
+
+      <!-- CTA -->
+      <div class="hero-cta">
+        <button (click)="getStarted()" class="btn-cta-primary">
+          <span>Get Started as {{ selectedRole === 'candidate' ? 'Job Seeker' : 'Referrer' }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow-icon">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Problem Section -->
+  <section id="problem" class="section problem-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">The Problem You Know Too Well</h2>
+        <p class="section-subtitle">
+          You're qualified. You're talented. But your applications disappear without a trace. Every "We'll be in touch" feels like another door closing.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <!-- Card 1 -->
+        <div class="problem-card">
+          <div class="problem-card-icon-wrapper bg-red-glow">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="problem-icon">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </div>
+          <h3>Endless Applications</h3>
+          <p>Spending hours customizing resumes only to hear nothing back from automated inbox dumps.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="problem-card">
+          <div class="problem-card-icon-wrapper bg-purple-glow">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="problem-icon">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M12 2v2"></path>
+              <line x1="12" y1="8" x2="12" y2="11"></line>
+              <circle cx="12" cy="6" r="2"></circle>
+              <line x1="8" y1="16" x2="8.01" y2="16"></line>
+              <line x1="16" y1="16" x2="16.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3>Lost in ATS Systems</h3>
+          <p>Your resume rejected by rigid parsing algorithms before a human recruiter even lays eyes on it.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="problem-card">
+          <div class="problem-card-icon-wrapper bg-orange-glow">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="problem-icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3>Months of Waiting</h3>
+          <p>Losing momentum and motivation as weeks turn into months without any constructive progress or updates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section id="stats" class="section stats-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">DATA-DRIVEN RESULTS</span>
+        <h2 class="section-title">The <span class="gradient-text">Success Rate Reality</span></h2>
+        <p class="section-subtitle">
+          Traditional job hunting is broken. Here's the proof why employee referrals are your best path to success.
+        </p>
+      </div>
+
+      <div class="stats-panel-card">
+        <h3 class="stats-panel-title">Employee Referral Success Rates</h3>
+        
+        <div class="charts-layout">
+          <!-- Chart 1: Applications -->
+          <div class="chart-container">
+            <h4 class="chart-title">Job Applications</h4>
+            <div class="donut-wrapper">
+              <svg viewBox="0 0 200 200" class="donut-svg">
+                <!-- Background Ring -->
+                <circle cx="100" cy="100" r="75" fill="transparent" stroke="var(--chart-bg)" stroke-width="16" />
+                <!-- 6% Referral Arc (Circumference = 2 * pi * 75 = 471.2; 6% is 28.3, dashoffset = 442.9) -->
+                <circle cx="100" cy="100" r="75" fill="transparent" stroke="#3b82f6" stroke-width="16" 
+                        stroke-dasharray="471.2" stroke-dashoffset="442.9" stroke-linecap="round" class="donut-segment" transform="rotate(-90 100 100)" />
+                <text x="50%" y="47%" text-anchor="middle" class="chart-percent-text">6%</text>
+                <text x="50%" y="62%" text-anchor="middle" class="chart-percent-label">Referrals</text>
+              </svg>
+            </div>
+            <p class="chart-desc">Only 6% of all applications come through referrals.</p>
+          </div>
+
+          <!-- Chart 2: Hires -->
+          <div class="chart-container">
+            <h4 class="chart-title">Total Hires</h4>
+            <div class="donut-wrapper">
+              <svg viewBox="0 0 200 200" class="donut-svg">
+                <!-- Background Ring -->
+                <circle cx="100" cy="100" r="75" fill="transparent" stroke="var(--chart-bg)" stroke-width="16" />
+                <!-- 37% Referral Arc (Circumference = 471.2; 37% is 174.3, dashoffset = 296.9) -->
+                <circle cx="100" cy="100" r="75" fill="transparent" stroke="#10b981" stroke-width="16" 
+                        stroke-dasharray="471.2" stroke-dashoffset="296.9" stroke-linecap="round" class="donut-segment" transform="rotate(-90 100 100)" />
+                <text x="50%" y="47%" text-anchor="middle" class="chart-percent-text color-success">37%</text>
+                <text x="50%" y="62%" text-anchor="middle" class="chart-percent-label">Referrals</text>
+              </svg>
+            </div>
+            <p class="chart-desc">Yet referrals make up 37% of all final hires.</p>
+          </div>
+        </div>
+
+        <div class="source-credit">
+          Source: <a href="https://boterview.com" target="_blank" rel="noopener">Boterview - 6 Must-Know Employee Referral Statistics (2026)</a><br>
+          Based on data from Salarship, Eqo, Robert Half, and ERIN.
+        </div>
+      </div>
+
+      <!-- Callout Badge -->
+      <div class="stat-highlight-card">
+        <div class="stat-badge-icon bg-blue-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="trend-icon">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-highlight-text">
+          <strong>37% Success Rate Reality:</strong> Only 6% of all job applications are submitted with referrals, yet they are responsible for 37% of all hires.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section id="cta" class="section cta-section">
+    <div class="cta-bg-glow"></div>
+    <div class="container">
+      <div class="cta-card">
+        <h2>
+          Land Better Jobs Faster with <br>
+          <span class="gradient-text">Real Connections</span> from Top Companies
+        </h2>
+        <p>
+          Connect with verified professionals for mentorship, insights, and career opportunities — all in one trusted platform.
+        </p>
+        <button (click)="getStarted()" class="btn-cta-large">
+          Get Started Now
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a routerLink="/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Refer<span class="logo-accent">Me</span></span>
+          </a>
+          <p class="footer-tagline">Skip the black hole. Connect directly with hiring professionals through verified referrals.</p>
+        </div>
+
+        <div class="footer-links-group">
+          <div class="footer-links-col">
+            <h4>Platform</h4>
+            <a href="#" (click)="scrollTo('problem', $event)">Features</a>
+            <a href="#" (click)="scrollTo('problem', $event)">The Problem</a>
+            <a href="#" (click)="scrollTo('stats', $event)">Success Rates</a>
+          </div>
+
+          <div class="footer-links-col">
+            <h4>Account</h4>
+            <a routerLink="/login">Log In</a>
+            <a routerLink="/signup">Sign Up</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 ReferMe. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a routerLink="/privacy">Privacy Policy</a>
+          <a routerLink="/terms">Terms & Conditions</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
