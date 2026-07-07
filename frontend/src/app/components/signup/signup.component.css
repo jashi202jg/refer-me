@@ -1,7 +1,8 @@
 .auth-split-container {
   display: flex;
-  min-height: 100vh;
-  width: 100vw;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
   background-color: #ffffff;
   transition: background-color 0.3s ease;
 }
@@ -11,15 +12,16 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  padding: 3rem 2rem;
+  padding: 5rem 2rem 2rem 2rem;
   position: relative;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .btn-back {
   position: absolute;
-  top: 2rem;
+  top: 1.5rem;
   left: 2rem;
   display: flex;
   align-items: center;
@@ -43,12 +45,13 @@
 .auth-form-wrapper {
   width: 100%;
   max-width: 480px;
+  margin: auto 0;
 }
 
 .brand-title {
   font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: #0f172a;
   letter-spacing: -0.5px;
 }
@@ -68,12 +71,12 @@
 .auth-subtitle {
   color: #475569;
   font-size: 0.95rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 /* Custom Role Toggle Switch */
 .toggle-switch-wrapper {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .toggle-switch-container {
@@ -106,19 +109,19 @@
 .main-auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .form-group label {
@@ -129,7 +132,7 @@
 
 .form-control {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.85rem;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -151,12 +154,19 @@
   color: #ef4444;
 }
 
+.email-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+  line-height: 1.3;
+}
+
 /* Remember Me Checkbox */
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-top: 0.25rem;
+  margin-top: 0;
 }
 
 .checkbox-container {
@@ -248,7 +258,7 @@
   background-color: #2563eb;
   color: #ffffff;
   border: none;
-  padding: 0.85rem;
+  padding: 0.75rem;
   border-radius: 8px;
   font-weight: 700;
   font-size: 1rem;
@@ -271,7 +281,7 @@
 
 .redirect-link {
   text-align: center;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   font-size: 0.9rem;
   color: #475569;
 }
@@ -287,7 +297,7 @@
 }
 
 .auth-footer {
-  margin-top: 3rem;
+  margin-top: 2rem;
   font-size: 0.8rem;
   color: #94a3b8;
   text-align: center;
@@ -313,6 +323,7 @@
   position: relative;
   overflow: hidden;
   color: #ffffff;
+  height: 100vh;
 }
 
 .info-bg-circles {
@@ -527,4 +538,8 @@
 :host-context(body.dark-theme) .error-message {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.2);
+}
+
+:host-context(body.dark-theme) .email-hint {
+  color: #94a3b8;
 }

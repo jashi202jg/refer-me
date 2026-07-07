@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -24,7 +24,7 @@ export class SignupComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.signupForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, this.workEmailValidator]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       password2: ['', Validators.required],
       first_name: ['', Validators.required],
@@ -45,6 +45,11 @@ export class SignupComponent implements OnInit {
       }
     });
 
+    // Re-validate email when user_type changes
+    this.signupForm.get('user_type')?.valueChanges.subscribe(() => {
+      this.signupForm.get('email')?.updateValueAndValidity();
+    });
+
     // Load companies list from backend
     this.authService.getCompanies().subscribe({
       next: (list) => {
@@ -54,6 +59,31 @@ export class SignupComponent implements OnInit {
         console.error('Failed to load companies', err);
       }
     });
+  }
+
+  workEmailValidator(control: AbstractControl): ValidationErrors | null {
+    const email = control.value;
+    if (!email) return null;
+
+    const parent = control.parent;
+    if (parent) {
+      const userType = parent.get('user_type')?.value;
+      if (userType === 'referrer') {
+        const parts = email.split('@');
+        if (parts.length > 1) {
+          const emailDomain = parts[1].toLowerCase().trim();
+          const blockedDomains = [
+            'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 
+            'aol.com', 'icloud.com', 'protonmail.com', 'zoho.com', 
+            'yandex.com', 'mail.com', 'live.com', 'msn.com', 'gmx.com'
+          ];
+          if (blockedDomains.includes(emailDomain)) {
+            return { 'workEmailOnly': true };
+          }
+        }
+      }
+    }
+    return null;
   }
 
   passwordMatchValidator(g: FormGroup) {

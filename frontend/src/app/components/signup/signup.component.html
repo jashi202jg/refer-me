@@ -76,18 +76,26 @@
 
         <!-- Email & Phone -->
         <div class="form-group">
-          <label for="email">Email *</label>
+          <label for="email">
+            <span *ngIf="f['user_type'].value === 'candidate'">Email *</span>
+            <span *ngIf="f['user_type'].value === 'referrer'">Work Email *</span>
+          </label>
           <input 
             type="email" 
             id="email" 
             formControlName="email" 
             class="form-control"
-            placeholder="you@email.com"
+            [placeholder]="f['user_type'].value === 'referrer' ? 'name@company.com' : 'you@email.com'"
             [class.invalid]="f['email'].invalid && f['email'].touched"
           >
+          <!-- Friendly hint about spam/trouble -->
+          <div class="email-hint" *ngIf="f['user_type'].value === 'referrer' && (!f['email'].touched || !f['email'].invalid)">
+            We won't spam you or share this email address. We only use it to verify your business identity.
+          </div>
           <div class="error" *ngIf="f['email'].invalid && f['email'].touched">
             <span *ngIf="f['email'].errors?.['required']">Email is required</span>
             <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+            <span *ngIf="f['email'].errors?.['workEmailOnly']">Please enter your work email (personal email domains like &#64;gmail.com are not allowed)</span>
             <span *ngIf="f['email'].errors?.['server']">{{ f['email'].errors?.['server'] }}</span>
           </div>
         </div>
