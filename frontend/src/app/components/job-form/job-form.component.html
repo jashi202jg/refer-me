@@ -1,153 +1,176 @@
 <app-navbar></app-navbar>
 
 <div class="job-form-container">
+
+  <div class="back-nav">
+    <a [routerLink]="isEditMode && jobId ? ['/jobs', jobId] : '/jobs'" class="btn-back-nav">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back
+    </a>
+  </div>
+
   <div class="job-form-card">
-    <h1>{{ isEditMode ? 'Edit Job Posting' : 'Post a New Job' }}</h1>
-    <p class="subtitle">{{ isEditMode ? 'Update the details of your job opening' : 'Help candidates find their dream opportunity' }}</p>
 
-    <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="title">Job Title *</label>
-        <input 
-          type="text" 
-          id="title" 
-          formControlName="title" 
-          placeholder="e.g., Senior Software Engineer"
-          class="form-control"
-          [class.invalid]="f['title'].invalid && f['title'].touched"
-        >
-        <div class="error" *ngIf="f['title'].invalid && f['title'].touched">
-          Job title is required
-        </div>
-      </div>
+    <!-- Header -->
+    <div class="form-card-header">
+      <h1>{{ isEditMode ? 'Edit Job Posting' : 'Post a New Job' }}</h1>
+      <p class="subtitle">{{ isEditMode ? 'Update the details of your job opening' : 'Help candidates find their dream opportunity' }}</p>
+    </div>
 
-      <div class="form-row">
+    <!-- Form Body -->
+    <div class="form-body">
+      <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
+
+        <!-- Basic Info -->
+        <div class="form-section-title">Basic Information</div>
+
         <div class="form-group">
-          <label for="company">Company *</label>
-          <input 
-            type="text" 
-            id="company" 
-            formControlName="company" 
-            placeholder="Company name"
+          <label for="title">Job Title *</label>
+          <input
+            type="text"
+            id="title"
+            formControlName="title"
+            placeholder="e.g., Senior Software Engineer"
             class="form-control"
-            [class.invalid]="f['company'].invalid && f['company'].touched"
+            [class.invalid]="f['title'].invalid && f['title'].touched"
           >
-          <div class="error" *ngIf="f['company'].invalid && f['company'].touched">
-            Company name is required
+          <div class="error" *ngIf="f['title'].invalid && f['title'].touched">
+            Job title is required
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="company">Company *</label>
+            <input
+              type="text"
+              id="company"
+              formControlName="company"
+              placeholder="Company name"
+              class="form-control"
+              [class.invalid]="f['company'].invalid && f['company'].touched"
+            >
+            <div class="error" *ngIf="f['company'].invalid && f['company'].touched">
+              Company name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location *</label>
+            <input
+              type="text"
+              id="location"
+              formControlName="location"
+              placeholder="e.g., San Francisco, CA (Remote)"
+              class="form-control"
+              [class.invalid]="f['location'].invalid && f['location'].touched"
+            >
+            <div class="error" *ngIf="f['location'].invalid && f['location'].touched">
+              Location is required
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Details -->
+        <div class="form-section-title">Job Details</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="job_type">Job Type *</label>
+            <select id="job_type" formControlName="job_type" class="form-control">
+              <option value="full_time">Full Time</option>
+              <option value="part_time">Part Time</option>
+              <option value="contract">Contract</option>
+              <option value="internship">Internship</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status *</label>
+            <select id="status" formControlName="status" class="form-control">
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="experience_required">Experience Required <span class="optional">(Optional)</span></label>
+            <input
+              type="text"
+              id="experience_required"
+              formControlName="experience_required"
+              placeholder="e.g., 3-5 years"
+              class="form-control"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="salary_range">Salary Range <span class="optional">(Optional)</span></label>
+            <input
+              type="text"
+              id="salary_range"
+              formControlName="salary_range"
+              placeholder="e.g., $100k - $150k"
+              class="form-control"
+            >
+          </div>
+        </div>
+
+        <!-- Description & Skills -->
+        <div class="form-section-title">Description &amp; Skills</div>
+
+        <div class="form-group">
+          <label for="description">Job Description *</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="8"
+            placeholder="Provide a detailed description of the role, responsibilities, and requirements..."
+            class="form-control"
+            [class.invalid]="f['description'].invalid && f['description'].touched"
+          ></textarea>
+          <div class="error" *ngIf="f['description'].invalid && f['description'].touched">
+            <span *ngIf="f['description'].errors?.['required']">Description is required</span>
+            <span *ngIf="f['description'].errors?.['minlength']">Description must be at least 50 characters</span>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="location">Location *</label>
-          <input 
-            type="text" 
-            id="location" 
-            formControlName="location" 
-            placeholder="e.g., San Francisco, CA (Remote)"
+          <label for="skills_required">Required Skills *</label>
+          <input
+            type="text"
+            id="skills_required"
+            formControlName="skills_required"
+            placeholder="e.g., JavaScript, React, Node.js, MongoDB"
             class="form-control"
-            [class.invalid]="f['location'].invalid && f['location'].touched"
+            [class.invalid]="f['skills_required'].invalid && f['skills_required'].touched"
           >
-          <div class="error" *ngIf="f['location'].invalid && f['location'].touched">
-            Location is required
+          <small>Enter skills separated by commas</small>
+          <div class="error" *ngIf="f['skills_required'].invalid && f['skills_required'].touched">
+            Skills are required
           </div>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="job_type">Job Type *</label>
-          <select 
-            id="job_type" 
-            formControlName="job_type" 
-            class="form-control"
-          >
-            <option value="full_time">Full Time</option>
-            <option value="part_time">Part Time</option>
-            <option value="contract">Contract</option>
-            <option value="internship">Internship</option>
-          </select>
+        <!-- Error Message -->
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
         </div>
 
-        <div class="form-group">
-          <label for="status">Status *</label>
-          <select 
-            id="status" 
-            formControlName="status" 
-            class="form-control"
-          >
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="experience_required">Experience Required</label>
-          <input 
-            type="text" 
-            id="experience_required" 
-            formControlName="experience_required" 
-            placeholder="e.g., 3-5 years"
-            class="form-control"
-          >
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="jobForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">{{ isEditMode ? 'Save Changes' : 'Post Job' }}</span>
+            <span *ngIf="isSubmitting">{{ isEditMode ? 'Saving...' : 'Posting...' }}</span>
+          </button>
+          <a [routerLink]="isEditMode && jobId ? ['/jobs', jobId] : '/jobs'" class="btn-secondary">Cancel</a>
         </div>
 
-        <div class="form-group">
-          <label for="salary_range">Salary Range</label>
-          <input 
-            type="text" 
-            id="salary_range" 
-            formControlName="salary_range" 
-            placeholder="e.g., $100k - $150k"
-            class="form-control"
-          >
-        </div>
-      </div>
+      </form>
+    </div>
 
-      <div class="form-group">
-        <label for="description">Job Description *</label>
-        <textarea 
-          id="description" 
-          formControlName="description" 
-          rows="8"
-          placeholder="Provide a detailed description of the role, responsibilities, and requirements..."
-          class="form-control"
-          [class.invalid]="f['description'].invalid && f['description'].touched"
-        ></textarea>
-        <div class="error" *ngIf="f['description'].invalid && f['description'].touched">
-          <span *ngIf="f['description'].errors?.['required']">Description is required</span>
-          <span *ngIf="f['description'].errors?.['minlength']">Description must be at least 50 characters</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="skills_required">Required Skills *</label>
-        <input 
-          type="text" 
-          id="skills_required" 
-          formControlName="skills_required" 
-          placeholder="e.g., JavaScript, React, Node.js, MongoDB (comma-separated)"
-          class="form-control"
-          [class.invalid]="f['skills_required'].invalid && f['skills_required'].touched"
-        >
-        <small>Enter skills separated by commas</small>
-        <div class="error" *ngIf="f['skills_required'].invalid && f['skills_required'].touched">
-          Skills are required
-        </div>
-      </div>
-
-      <div class="error-message" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn-primary" [disabled]="jobForm.invalid || isSubmitting">
-          <span *ngIf="!isSubmitting">{{ isEditMode ? 'Save Changes' : 'Post Job' }}</span>
-          <span *ngIf="isSubmitting">{{ isEditMode ? 'Saving...' : 'Posting...' }}</span>
-        </button>
-        <a [routerLink]="isEditMode && jobId ? ['/jobs', jobId] : '/jobs'" class="btn-secondary">Cancel</a>
-      </div>
-    </form>
   </div>
 </div>

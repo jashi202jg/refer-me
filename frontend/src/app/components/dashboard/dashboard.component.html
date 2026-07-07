@@ -2,25 +2,45 @@
 
 <div class="dashboard-container">
   <div class="dashboard-header">
-    <h1>Welcome, {{ authService.currentUserValue?.first_name }}!</h1>
-    <p class="subtitle" *ngIf="authService.isCandidate">Find your dream job with referrals</p>
-    <p class="subtitle" *ngIf="authService.isReferrer">Help candidates land their dream jobs</p>
+    <div class="header-content">
+      <div class="header-text">
+        <h1>Welcome back, {{ authService.currentUserValue?.first_name }}</h1>
+        <p class="subtitle" *ngIf="authService.isCandidate">Find your dream job with referrals from insiders</p>
+        <p class="subtitle" *ngIf="authService.isReferrer">Help great candidates land their next opportunity</p>
+      </div>
+    </div>
   </div>
 
   <div class="loading" *ngIf="isLoading">
-    <p>Loading dashboard...</p>
+    <div class="loading-spinner"></div>
+    <p>Loading your dashboard...</p>
   </div>
 
   <!-- Candidate Dashboard -->
   <div class="dashboard-content" *ngIf="!isLoading && authService.isCandidate">
     <div class="stats-cards">
       <div class="stat-card">
-        <h3>{{ applications.length }}</h3>
-        <p>Applications Submitted</p>
+        <div class="stat-icon stat-icon--blue">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div class="stat-number">{{ applications.length }}</div>
+        <p class="stat-label">Applications Submitted</p>
       </div>
       <div class="stat-card">
-        <h3>{{ recentJobs.length }}</h3>
-        <p>New Jobs Available</p>
+        <div class="stat-icon stat-icon--purple">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="stat-number">{{ recentJobs.length }}</div>
+        <p class="stat-label">New Jobs Available</p>
       </div>
     </div>
 
@@ -30,10 +50,10 @@
           <h2>Recent Job Openings</h2>
           <a routerLink="/jobs" class="btn-link">View All</a>
         </div>
-        <div class="jobs-list">
+        <div class="section-body">
           <div class="job-card" *ngFor="let job of recentJobs">
             <h3>{{ job.title }}</h3>
-            <p class="company">{{ job.company }} • {{ job.location }}</p>
+            <p class="company">{{ job.company }} &middot; {{ job.location }}</p>
             <div class="job-meta">
               <span class="badge">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
               <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
@@ -41,7 +61,14 @@
             <a [routerLink]="['/jobs', job.id]" class="btn-view">View Details</a>
           </div>
           <div *ngIf="recentJobs.length === 0" class="empty-state">
+            <div class="empty-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
             <p>No jobs available at the moment</p>
+            <a routerLink="/jobs" class="btn-primary">Browse All Jobs</a>
           </div>
         </div>
       </div>
@@ -51,18 +78,24 @@
           <h2>My Applications</h2>
           <a routerLink="/applications" class="btn-link">View All</a>
         </div>
-        <div class="applications-list">
+        <div class="section-body">
           <div class="application-card" *ngFor="let application of applications">
             <h3>{{ application.job_details?.title }}</h3>
             <p class="company">{{ application.job_details?.company }}</p>
             <div class="application-meta">
-              <span>Applied: {{ application.applied_at | date:'medium' }}</span>
+              <span>{{ application.applied_at | date:'MMM d, y' }}</span>
               <span class="badge" [ngClass]="getStatusClass(application.status)">
                 {{ application.status | titlecase }}
               </span>
             </div>
           </div>
           <div *ngIf="applications.length === 0" class="empty-state">
+            <div class="empty-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+            </div>
             <p>You haven't applied to any jobs yet</p>
             <a routerLink="/jobs" class="btn-primary">Browse Jobs</a>
           </div>
@@ -75,12 +108,26 @@
   <div class="dashboard-content" *ngIf="!isLoading && authService.isReferrer">
     <div class="stats-cards">
       <div class="stat-card">
-        <h3>{{ myJobs.length }}</h3>
-        <p>Jobs Posted</p>
+        <div class="stat-icon stat-icon--blue">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </div>
+        <div class="stat-number">{{ myJobs.length }}</div>
+        <p class="stat-label">Jobs Posted</p>
       </div>
       <div class="stat-card">
-        <h3>{{ applications.length }}</h3>
-        <p>Applications Received</p>
+        <div class="stat-icon stat-icon--green">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="stat-number">{{ applications.length }}</div>
+        <p class="stat-label">Applications Received</p>
       </div>
     </div>
 
@@ -90,18 +137,24 @@
           <h2>My Posted Jobs</h2>
           <a routerLink="/jobs" class="btn-link">View All</a>
         </div>
-        <div class="jobs-list">
+        <div class="section-body">
           <div class="job-card" *ngFor="let job of myJobs">
             <h3>{{ job.title }}</h3>
-            <p class="company">{{ job.company }} • {{ job.location }}</p>
+            <p class="company">{{ job.company }} &middot; {{ job.location }}</p>
             <div class="job-meta">
               <span class="badge">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
               <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
-              <span>{{ job.applications_count }} applications</span>
+              <span class="meta-applicants">{{ job.applications_count }} applicants</span>
             </div>
             <a [routerLink]="['/jobs', job.id]" class="btn-view">View Details</a>
           </div>
           <div *ngIf="myJobs.length === 0" class="empty-state">
+            <div class="empty-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
             <p>You haven't posted any jobs yet</p>
             <a routerLink="/post-job" class="btn-primary">Post Your First Job</a>
           </div>
@@ -113,18 +166,24 @@
           <h2>Recent Applications</h2>
           <a routerLink="/applications" class="btn-link">View All</a>
         </div>
-        <div class="applications-list">
+        <div class="section-body">
           <div class="application-card" *ngFor="let application of applications">
             <h3>{{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}</h3>
             <p class="company">Applied for: {{ application.job_details?.title }}</p>
             <div class="application-meta">
-              <span>{{ application.applied_at | date:'medium' }}</span>
+              <span>{{ application.applied_at | date:'MMM d, y' }}</span>
               <span class="badge" [ngClass]="getStatusClass(application.status)">
                 {{ application.status | titlecase }}
               </span>
             </div>
           </div>
           <div *ngIf="applications.length === 0" class="empty-state">
+            <div class="empty-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </div>
             <p>No applications received yet</p>
           </div>
         </div>

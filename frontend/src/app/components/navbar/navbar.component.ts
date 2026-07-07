@@ -18,6 +18,7 @@ export class NavbarComponent {
   unreadCount = 0;
   notifications: NotificationItem[] = [];
   showNotificationsDropdown = false;
+  showUserMenu = false;
 
   constructor(
     public authService: AuthService,
@@ -43,12 +44,19 @@ export class NavbarComponent {
 
   toggleNotifications() {
     this.showNotificationsDropdown = !this.showNotificationsDropdown;
+    if (this.showNotificationsDropdown) this.showUserMenu = false;
+  }
+
+  toggleUserMenu() {
+    this.showUserMenu = !this.showUserMenu;
+    if (this.showUserMenu) this.showNotificationsDropdown = false;
   }
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
-    if (this.showNotificationsDropdown && !this.elementRef.nativeElement.querySelector('.notification-wrapper')?.contains(event.target)) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
       this.showNotificationsDropdown = false;
+      this.showUserMenu = false;
     }
   }
 
@@ -69,6 +77,7 @@ export class NavbarComponent {
   }
 
   logout() {
+    this.showUserMenu = false;
     this.authService.logout();
   }
 }

@@ -1,67 +1,138 @@
 <app-navbar></app-navbar>
 
 <div class="job-detail-container">
+
+  <div class="back-nav">
+    <a routerLink="/jobs" class="btn-back-nav">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back to Jobs
+    </a>
+  </div>
+
   <div class="loading" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
     <p>Loading job details...</p>
   </div>
 
   <div class="job-detail" *ngIf="!isLoading && job">
+
+    <!-- Job Header -->
     <div class="job-header">
-      <div>
+      <div class="job-header-left">
         <h1>{{ job.title }}</h1>
-        <p class="company">{{ job.company }}</p>
+        <p class="company">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="company-icon">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          {{ job.company }}
+        </p>
       </div>
       <span class="badge" [class.status-open]="job.status === 'open'" [class.status-closed]="job.status === 'closed'">
         {{ job.status | titlecase }}
       </span>
     </div>
 
+    <!-- Meta Info -->
     <div class="job-meta">
       <div class="meta-item">
-        <strong>Location:</strong> {{ job.location }}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <div>
+          <span class="meta-label">Location</span>
+          <span class="meta-value">{{ job.location }}</span>
+        </div>
       </div>
       <div class="meta-item">
-        <strong>Type:</strong> {{ (job.job_type || '').replace('_', ' ') | titlecase }}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <div>
+          <span class="meta-label">Job Type</span>
+          <span class="meta-value">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
+        </div>
       </div>
       <div class="meta-item" *ngIf="job.experience_required">
-        <strong>Experience:</strong> {{ job.experience_required }}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+        </svg>
+        <div>
+          <span class="meta-label">Experience</span>
+          <span class="meta-value">{{ job.experience_required }}</span>
+        </div>
       </div>
       <div class="meta-item" *ngIf="job.salary_range">
-        <strong>Salary:</strong> {{ job.salary_range }}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        <div>
+          <span class="meta-label">Salary</span>
+          <span class="meta-value">{{ job.salary_range }}</span>
+        </div>
       </div>
       <div class="meta-item" *ngIf="job.applications_count !== undefined">
-        <strong>Applications:</strong> {{ job.applications_count }}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <div>
+          <span class="meta-label">Applicants</span>
+          <span class="meta-value">{{ job.applications_count }}</span>
+        </div>
       </div>
     </div>
 
-    <div class="job-section">
-      <h2>Job Description</h2>
-      <p class="description">{{ job.description }}</p>
-    </div>
+    <!-- Content -->
+    <div class="job-content">
 
-    <div class="job-section" *ngIf="job.skills_list">
-      <h2>Required Skills</h2>
-      <div class="skills">
-        <span class="skill-tag" *ngFor="let skill of job.skills_list">
-          {{ skill }}
-        </span>
+      <div class="job-section">
+        <h2>Job Description</h2>
+        <p class="description">{{ job.description }}</p>
       </div>
+
+      <div class="job-section" *ngIf="job.skills_list">
+        <h2>Required Skills</h2>
+        <div class="skills">
+          <span class="skill-tag" *ngFor="let skill of job.skills_list">
+            {{ skill }}
+          </span>
+        </div>
+      </div>
+
+      <div class="job-section" *ngIf="job.posted_by_details">
+        <h2>Posted By</h2>
+        <div class="posted-info">
+          <div class="poster-avatar">
+            {{ (job.posted_by_details.first_name || '')[0] }}{{ (job.posted_by_details.last_name || '')[0] }}
+          </div>
+          <div class="poster-details">
+            <p>{{ job.posted_by_details.first_name }} {{ job.posted_by_details.last_name }}</p>
+            <p class="posted-date">Posted on {{ job.created_at | date:'MMMM d, y' }}</p>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="job-section" *ngIf="job.posted_by_details">
-      <h2>Posted By</h2>
-      <p>{{ job.posted_by_details.first_name }} {{ job.posted_by_details.last_name }}</p>
-      <p class="posted-date">Posted on: {{ job.created_at | date:'medium' }}</p>
-    </div>
-
+    <!-- Alerts -->
     <div class="success-message" *ngIf="applicationSuccess">
-      ✓ Application submitted successfully! Redirecting...
+      Application submitted successfully! Redirecting...
     </div>
 
     <div class="error-message" *ngIf="errorMessage">
       {{ errorMessage }}
     </div>
 
+    <!-- Actions -->
     <div class="actions">
       <button *ngIf="canApply && !showApplicationForm" (click)="toggleApplicationForm()" class="btn-primary">
         Apply for this Job
@@ -72,100 +143,119 @@
         <button (click)="deleteJob()" class="btn-danger">Delete Job</button>
       </div>
 
-      <a routerLink="/jobs" class="btn-back">Back to Jobs</a>
+      <a routerLink="/jobs" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back to Jobs
+      </a>
     </div>
 
     <!-- Application Form -->
     <div class="application-form" *ngIf="showApplicationForm">
-      <h2>Apply for this Position</h2>
-      <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()">
-        <div class="form-group">
-          <label for="cover_letter">Cover Letter *</label>
-          <textarea 
-            id="cover_letter" 
-            formControlName="cover_letter" 
-            rows="5"
-            placeholder="Tell us why you're a great fit for this role..."
-            class="form-control"
-            [class.invalid]="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched"
-          ></textarea>
-          <div class="error" *ngIf="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched">
-            Cover letter is required
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="resume_file">Upload Resume (PDF, DOCX)</label>
-          <div class="file-upload-row">
-            <input type="file" id="resume_file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" class="file-input">
-            <span class="file-name-display" *ngIf="selectedResumeFilename">
-              {{ selectedResumeFilename }}
-              <button type="button" class="btn-link-danger" (click)="removeFile()">(Remove)</button>
-            </span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="resume_url">Or Resume Link</label>
-          <input 
-            type="url" 
-            id="resume_url" 
-            formControlName="resume_url" 
-            placeholder="https://example.com/your-resume.pdf"
-            class="form-control"
-          >
-          <small>Provide a link to your resume if you didn't upload a file</small>
-        </div>
-
-        <div class="form-row-three">
+      <div class="application-form-inner">
+        <h2>Apply for this Position</h2>
+        <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()">
           <div class="form-group">
-            <label for="linkedin_url">LinkedIn URL (Optional)</label>
-            <input 
-              type="url" 
-              id="linkedin_url" 
-              formControlName="linkedin_url" 
-              placeholder="https://linkedin.com/in/username"
+            <label for="cover_letter">Cover Letter *</label>
+            <textarea
+              id="cover_letter"
+              formControlName="cover_letter"
+              rows="5"
+              placeholder="Tell us why you're a great fit for this role..."
               class="form-control"
-            >
+              [class.invalid]="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched"
+            ></textarea>
+            <div class="error" *ngIf="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched">
+              Cover letter is required
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="github_url">GitHub URL (Optional)</label>
-            <input 
-              type="url" 
-              id="github_url" 
-              formControlName="github_url" 
-              placeholder="https://github.com/username"
-              class="form-control"
-            >
+            <label for="resume_file">Upload Resume (PDF, DOCX)</label>
+            <div class="file-upload-row">
+              <input type="file" id="resume_file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" class="file-input">
+              <span class="file-name-display" *ngIf="selectedResumeFilename">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="file-icon">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+                {{ selectedResumeFilename }}
+                <button type="button" class="btn-link-danger" (click)="removeFile()">Remove</button>
+              </span>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="portfolio_url">Portfolio URL (Optional)</label>
-            <input 
-              type="url" 
-              id="portfolio_url" 
-              formControlName="portfolio_url" 
-              placeholder="https://yourportfolio.com"
+            <label for="resume_url">Or Resume Link</label>
+            <input
+              type="url"
+              id="resume_url"
+              formControlName="resume_url"
+              placeholder="https://example.com/your-resume.pdf"
               class="form-control"
             >
+            <small>Provide a link to your resume if you didn't upload a file</small>
           </div>
-        </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="applicationSubmitting">
-            <span *ngIf="!applicationSubmitting">Submit Application</span>
-            <span *ngIf="applicationSubmitting">Submitting...</span>
-          </button>
-          <button type="button" (click)="toggleApplicationForm()" class="btn-secondary">Cancel</button>
-        </div>
-      </form>
+          <div class="form-row-three">
+            <div class="form-group">
+              <label for="linkedin_url">LinkedIn URL <span class="optional">(Optional)</span></label>
+              <input
+                type="url"
+                id="linkedin_url"
+                formControlName="linkedin_url"
+                placeholder="https://linkedin.com/in/username"
+                class="form-control"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="github_url">GitHub URL <span class="optional">(Optional)</span></label>
+              <input
+                type="url"
+                id="github_url"
+                formControlName="github_url"
+                placeholder="https://github.com/username"
+                class="form-control"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="portfolio_url">Portfolio URL <span class="optional">(Optional)</span></label>
+              <input
+                type="url"
+                id="portfolio_url"
+                formControlName="portfolio_url"
+                placeholder="https://yourportfolio.com"
+                class="form-control"
+              >
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="applicationSubmitting">
+              <span *ngIf="!applicationSubmitting">Submit Application</span>
+              <span *ngIf="applicationSubmitting">Submitting...</span>
+            </button>
+            <button type="button" (click)="toggleApplicationForm()" class="btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
     </div>
+
   </div>
 
   <div class="not-found" *ngIf="!isLoading && !job">
+    <div class="empty-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        <line x1="11" y1="8" x2="11" y2="11"></line>
+        <line x1="11" y1="14" x2="11.01" y2="14"></line>
+      </svg>
+    </div>
     <h2>Job not found</h2>
     <p>The job you're looking for doesn't exist or has been removed.</p>
-    <a routerLink="/jobs" class="btn-primary">Browse Jobs</a>
+    <a routerLink="/jobs" class="btn-primary" style="margin-top:16px">Browse Jobs</a>
   </div>
 </div>

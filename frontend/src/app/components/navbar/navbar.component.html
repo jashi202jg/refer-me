@@ -1,34 +1,38 @@
 <nav class="navbar">
-  <div class="nav-container">
-    <div class="nav-brand">
-      <a routerLink="/dashboard">ReferMe</a>
+  <div class="navbar-container">
+
+    <!-- Logo (Left) -->
+    <a routerLink="/" class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      <span>Refer<span class="logo-accent">Me</span></span>
+    </a>
+
+    <!-- Center Nav Links (Authenticated) -->
+    <div class="nav-center" *ngIf="authService.isLoggedIn">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a routerLink="/jobs" routerLinkActive="active" class="nav-item">Jobs</a>
+      <a routerLink="/post-job" routerLinkActive="active" class="nav-item" *ngIf="authService.isReferrer">Post Job</a>
+      <a routerLink="/applications" routerLinkActive="active" class="nav-item">Applications</a>
     </div>
 
-    <div class="nav-links-right">
-      <div class="nav-links" *ngIf="authService.isLoggedIn">
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a routerLink="/jobs" routerLinkActive="active">Jobs</a>
-        <a routerLink="/post-job" routerLinkActive="active" *ngIf="authService.isReferrer">Post Job</a>
-        <a routerLink="/applications" routerLinkActive="active">Applications</a>
-        
-        <div class="user-menu">
-          <span class="user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
-          <span class="user-badge" [class.badge-referrer]="currentUser?.user_type === 'referrer'" [class.badge-candidate]="currentUser?.user_type === 'candidate'">
-            {{ currentUser?.user_type }}
-          </span>
-          <button class="btn-logout" (click)="logout()">Logout</button>
-        </div>
-      </div>
+    <!-- Center Nav Links (Guest) -->
+    <div class="nav-center" *ngIf="!authService.isLoggedIn">
+      <a routerLink="/login" class="nav-item">Log In</a>
+      <a routerLink="/signup" class="btn-signup">Sign Up</a>
+    </div>
 
-      <div class="nav-links" *ngIf="!authService.isLoggedIn">
-        <a routerLink="/login" routerLinkActive="active">Login</a>
-        <a routerLink="/signup" routerLinkActive="active" class="btn-signup">Sign Up</a>
-      </div>
+    <!-- Right Actions -->
+    <div class="navbar-actions">
 
-      <!-- Notifications Dropdown -->
+      <!-- Notification Bell -->
       <div class="notification-wrapper" *ngIf="authService.isLoggedIn">
-        <button type="button" class="btn-notification" (click)="toggleNotifications()" title="Notifications">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bell-icon">
+        <button type="button" class="btn-icon" (click)="toggleNotifications()" aria-label="Notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
           </svg>
@@ -43,14 +47,13 @@
               <button type="button" class="btn-text" (click)="clearNotifications()">Clear</button>
             </div>
           </div>
-
           <div class="dropdown-body">
             <div *ngIf="notifications.length === 0" class="empty-notifications">
               <p>No notifications yet</p>
             </div>
-            <div 
-              *ngFor="let notif of notifications" 
-              class="notification-item" 
+            <div
+              *ngFor="let notif of notifications"
+              class="notification-item"
               [class.unread]="!notif.isRead"
               (click)="onNotificationClick(notif)"
             >
@@ -65,18 +68,50 @@
         </div>
       </div>
 
-      <button type="button" class="theme-toggle-switch" (click)="toggleTheme()" [class.is-dark]="themeService.isDarkMode" [title]="themeService.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle theme">
-        <span class="toggle-track">
-          <svg class="toggle-icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4"></circle>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
-          </svg>
-          <svg class="toggle-icon moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-          </svg>
-          <span class="toggle-thumb"></span>
-        </span>
+      <!-- User Avatar Dropdown -->
+      <div class="user-dropdown-wrapper" *ngIf="authService.isLoggedIn">
+        <button type="button" class="user-avatar-btn" (click)="toggleUserMenu()" aria-label="User menu">
+          <span class="user-avatar">
+            {{ currentUser?.first_name?.charAt(0) }}{{ currentUser?.last_name?.charAt(0) }}
+          </span>
+        </button>
+        <div class="user-dropdown" *ngIf="showUserMenu">
+          <div class="user-dropdown-header">
+            <span class="user-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
+            <span class="user-badge" [class.badge-referrer]="currentUser?.user_type === 'referrer'" [class.badge-candidate]="currentUser?.user_type === 'candidate'">
+              {{ currentUser?.user_type }}
+            </span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <button type="button" class="user-dropdown-item logout-item" (click)="logout()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      <!-- Theme Toggle -->
+      <button type="button" class="btn-theme-toggle" (click)="toggleTheme()" [title]="themeService.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle theme">
+        <svg *ngIf="!themeService.isDarkMode" class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg *ngIf="themeService.isDarkMode" class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
       </button>
+
     </div>
   </div>
 </nav>

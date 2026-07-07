@@ -1,40 +1,165 @@
+/* =============================================
+   NAVBAR — Consistent with Landing Page
+   ============================================= */
+
 .navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  z-index: 1000;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
-.nav-container {
+.navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  gap: 1rem;
 }
 
-.nav-brand a {
-  font-size: 24px;
-  font-weight: 700;
-  color: #667eea;
+/* ── Logo (Left) ──────────────────────────── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: #0f172a;
   text-decoration: none;
+  letter-spacing: -0.5px;
+  justify-self: start;
 }
 
-.nav-links-right {
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  color: #3b82f6;
+}
+
+.logo-accent {
+  color: #3b82f6;
+}
+
+/* ── Center Nav ───────────────────────────── */
+.nav-center {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 0.25rem;
+  justify-self: center;
 }
 
-.nav-links {
+.nav-item {
+  color: #475569;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.nav-item.active {
+  color: #3b82f6;
+  background: #eff6ff;
+  font-weight: 600;
+}
+
+/* ── Sign Up (Guest) ──────────────────────── */
+.btn-signup {
+  background-color: #3b82f6;
+  color: #ffffff !important;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-signup:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+/* ── Right Actions ────────────────────────── */
+.navbar-actions {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 0.4rem;
+  justify-self: end;
 }
 
-.theme-toggle-switch {
+/* ── Icon Button ──────────────────────────── */
+.btn-icon {
+  background: none;
+  border: none;
+  color: #64748b;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-icon:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Notification Badge ───────────────────── */
+.notification-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: #ef4444;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 10px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.4;
+  border: 1.5px solid white;
+}
+
+/* ── User Avatar Button ───────────────────── */
+.user-dropdown-wrapper {
+  position: relative;
+}
+
+.user-avatar-btn {
   background: none;
   border: none;
   padding: 0;
@@ -43,219 +168,172 @@
   align-items: center;
 }
 
-.toggle-track {
-  position: relative;
-  width: 56px;
-  height: 28px;
-  background: #cbd5e1;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 6px;
-  transition: background 0.3s ease;
-}
-
-.theme-toggle-switch.is-dark .toggle-track {
-  background: #334155;
-}
-
-.toggle-icon {
-  width: 14px;
-  height: 14px;
-  z-index: 1;
-  user-select: none;
-  display: block;
-  transition: color 0.3s ease;
-}
-
-.sun-icon {
-  color: #f59e0b;
-}
-
-.moon-icon {
-  color: #64748b;
-}
-
-.theme-toggle-switch.is-dark .moon-icon {
-  color: #cbd5e1;
-}
-
-.toggle-thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 22px;
-  height: 22px;
-  background: white;
+.user-avatar {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.theme-toggle-switch.is-dark .toggle-thumb {
-  transform: translateX(28px);
-  background: #1e293b;
-}
-
-.nav-links a {
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover {
-  color: #667eea;
-}
-
-.nav-links a.active {
-  color: #667eea;
-  border-bottom: 2px solid #667eea;
-  padding-bottom: 3px;
-}
-
-.user-menu {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-left: 15px;
-  padding-left: 15px;
-  border-left: 1px solid #ddd;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.user-avatar-btn:hover .user-avatar {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+/* ── User Dropdown ────────────────────────── */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 200px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  z-index: 200;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.16s ease;
+}
+
+.user-dropdown-header {
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .user-name {
-  font-weight: 600;
-  color: #333;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
 }
 
 .user-badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: capitalize;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
 .badge-referrer {
   background: #f3e8ff;
-  color: #7e22ce;
-  border: 1px solid #d8b4fe;
+  color: #7c3aed;
+  border: 1px solid #e9d5ff;
 }
 
 .badge-candidate {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
 }
 
-.btn-logout {
-  padding: 8px 16px;
-  background: #e74c3c;
-  color: white;
+.user-dropdown-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 0;
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  background: none;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: background 0.3s;
+  color: #475569;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
 }
 
-.btn-logout:hover {
-  background: #c0392b;
+.user-dropdown-item:hover {
+  background: #f8fafc;
+  color: #0f172a;
 }
 
-.btn-signup {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white !important;
-  border-radius: 5px;
+.logout-item:hover {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-@media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-  }
-
-  .user-menu {
-    border-left: none;
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-    margin-top: 10px;
-  }
+.dropdown-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 
-/* Notification System Styling */
+/* ── Theme Toggle ─────────────────────────── */
+.btn-theme-toggle {
+  background: #f1f5f9;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #475569;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-theme-toggle:hover {
+  background: #e2e8f0;
+  transform: scale(1.05);
+}
+
+.theme-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Notification Dropdown ────────────────── */
 .notification-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.btn-notification {
-  background: none;
-  border: none;
-  position: relative;
-  cursor: pointer;
-  padding: 6px;
-  color: #475569;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background 0.2s, color 0.2s;
-}
-
-.btn-notification:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-.bell-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.notification-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: #ef4444;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 16px;
-  text-align: center;
-  line-height: 1;
-}
-
 .notification-dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   right: 0;
-  width: 320px;
+  width: 340px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
   border: 1px solid #e2e8f0;
   z-index: 200;
   overflow: hidden;
-  animation: fadeIn 0.2s ease;
+  animation: dropdownFadeIn 0.16s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .dropdown-header {
-  padding: 14px 16px;
+  padding: 14px 18px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
@@ -265,143 +343,188 @@
 
 .dropdown-header h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #0f172a;
 }
 
-.dropdown-actions {
-  display: flex;
-  gap: 10px;
-}
+.dropdown-actions { display: flex; gap: 12px; }
 
 .btn-text {
   background: none;
   border: none;
-  color: #6366f1;
-  font-size: 12px;
+  color: #3b82f6;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
+  transition: color 0.2s;
 }
 
-.btn-text:hover {
-  text-decoration: underline;
-}
+.btn-text:hover { color: #2563eb; text-decoration: underline; }
 
-.dropdown-body {
-  max-height: 360px;
-  overflow-y: auto;
-}
+.dropdown-body { max-height: 360px; overflow-y: auto; }
 
 .empty-notifications {
-  padding: 30px 20px;
+  padding: 32px 20px;
   text-align: center;
   color: #94a3b8;
-  font-size: 13px;
+  font-size: 0.875rem;
 }
 
 .notification-item {
-  padding: 12px 16px;
+  padding: 13px 18px;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.15s;
 }
 
-.notification-item:hover {
-  background: #f8fafc;
-}
+.notification-item:last-child { border-bottom: none; }
+.notification-item:hover { background: #f8fafc; }
+.notification-item.unread { background: #f0fdf4; }
+.notification-item.unread:hover { background: #dcfce7; }
 
-.notification-item.unread {
-  background: #f0fdf4;
-}
-
-.notification-item.unread:hover {
-  background: #dcfce7;
-}
-
-.notif-content {
-  flex: 1;
-}
+.notif-content { flex: 1; }
 
 .notif-title {
   display: block;
-  font-size: 13px;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #0f172a;
   margin-bottom: 3px;
 }
 
 .notif-message {
-  margin: 0 0 4px 0;
-  font-size: 12px;
-  color: #475569;
-  line-height: 1.4;
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.45;
 }
 
-.notif-time {
-  font-size: 11px;
-  color: #94a3b8;
-}
+.notif-time { font-size: 0.7rem; color: #94a3b8; }
 
 .unread-dot {
   width: 8px;
   height: 8px;
-  background: #22c55e;
+  background: #3b82f6;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
-/* Dark Mode Encapsulated Styles */
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 1rem;
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .nav-center {
+    gap: 0.1rem;
+  }
+
+  .nav-item {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.5rem;
+  }
+}
+
+/* =============================================
+   DARK THEME
+   ============================================= */
 :host-context(body.dark-theme) .navbar {
+  background: rgba(15, 23, 42, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+:host-context(body.dark-theme) .logo {
+  color: #f1f5f9;
+}
+
+:host-context(body.dark-theme) .nav-item {
+  color: #94a3b8;
+}
+
+:host-context(body.dark-theme) .nav-item:hover {
+  color: #f1f5f9;
   background: #1e293b;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
-:host-context(body.dark-theme) .nav-links a {
-  color: #cbd5e1;
-}
-
-:host-context(body.dark-theme) .nav-links a:hover {
+:host-context(body.dark-theme) .nav-item.active {
   color: #818cf8;
+  background: rgba(129, 140, 248, 0.1);
 }
 
-:host-context(body.dark-theme) .nav-links a.active {
-  color: #818cf8;
-  border-bottom-color: #818cf8;
+:host-context(body.dark-theme) .btn-icon {
+  color: #94a3b8;
 }
 
-:host-context(body.dark-theme) .user-name {
-  color: #f8fafc;
+:host-context(body.dark-theme) .btn-icon:hover {
+  background: #1e293b;
+  color: #f1f5f9;
 }
 
-:host-context(body.dark-theme) .user-menu {
-  border-left-color: #334155;
-  border-top-color: #334155;
+:host-context(body.dark-theme) .notification-badge {
+  border-color: #0f172a;
 }
 
-:host-context(body.dark-theme) .toggle-track {
-  background: #334155;
-}
-
-:host-context(body.dark-theme) .btn-notification {
-  color: #cbd5e1;
-}
-
-:host-context(body.dark-theme) .btn-notification:hover {
-  background: #334155;
-  color: #f8fafc;
-}
-
+:host-context(body.dark-theme) .user-dropdown,
 :host-context(body.dark-theme) .notification-dropdown {
   background: #1e293b;
   border-color: #334155;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+:host-context(body.dark-theme) .user-dropdown-header {
+  background: #1e293b;
+}
+
+:host-context(body.dark-theme) .user-name {
+  color: #f1f5f9;
+}
+
+:host-context(body.dark-theme) .badge-referrer {
+  background: rgba(124, 58, 237, 0.2);
+  color: #c4b5fd;
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+:host-context(body.dark-theme) .badge-candidate {
+  background: rgba(37, 99, 235, 0.2);
+  color: #93c5fd;
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+:host-context(body.dark-theme) .user-dropdown-divider {
+  background: #334155;
+}
+
+:host-context(body.dark-theme) .user-dropdown-item {
+  color: #94a3b8;
+}
+
+:host-context(body.dark-theme) .user-dropdown-item:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+:host-context(body.dark-theme) .logout-item:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+:host-context(body.dark-theme) .btn-theme-toggle {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+:host-context(body.dark-theme) .btn-theme-toggle:hover {
+  background: #334155;
 }
 
 :host-context(body.dark-theme) .dropdown-header {
@@ -410,7 +533,7 @@
 }
 
 :host-context(body.dark-theme) .dropdown-header h4 {
-  color: #f8fafc;
+  color: #f1f5f9;
 }
 
 :host-context(body.dark-theme) .btn-text {
@@ -426,17 +549,17 @@
 }
 
 :host-context(body.dark-theme) .notification-item.unread {
-  background: #064e3b;
+  background: rgba(59, 130, 246, 0.08);
 }
 
 :host-context(body.dark-theme) .notification-item.unread:hover {
-  background: #047857;
+  background: rgba(59, 130, 246, 0.15);
 }
 
 :host-context(body.dark-theme) .notif-title {
-  color: #f8fafc;
+  color: #f1f5f9;
 }
 
 :host-context(body.dark-theme) .notif-message {
-  color: #cbd5e1;
+  color: #94a3b8;
 }
