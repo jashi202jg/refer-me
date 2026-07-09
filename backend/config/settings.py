@@ -194,3 +194,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# External Job API Configuration
+RAPIDAPI_KEY = config('RAPIDAPI_KEY', default='')
+RAPIDAPI_HOST = 'jsearch.p.rapidapi.com'

@@ -58,6 +58,53 @@ class Job(models.Model):
         return [skill.strip() for skill in self.skills_required.split(',')]
 
 
+class ExternalJob(models.Model):
+    """
+    Model for externally fetched jobs from JSearch API
+    """
+    job_id = models.CharField(max_length=255, unique=True, db_index=True)
+    job_title = models.CharField(max_length=500)
+    employer_name = models.CharField(max_length=255)
+    employer_logo = models.URLField(blank=True, null=True)
+    employer_website = models.URLField(blank=True, null=True)
+    job_publisher = models.CharField(max_length=255, blank=True, null=True)
+    job_employment_type = models.CharField(max_length=50, blank=True, null=True)
+    job_apply_link = models.URLField()
+    job_description = models.TextField()
+    job_is_remote = models.BooleanField(default=False, null=True)
+    job_posted_at_timestamp = models.BigIntegerField(blank=True, null=True)
+    job_posted_at_datetime_utc = models.DateTimeField(blank=True, null=True)
+    job_location = models.CharField(max_length=255, blank=True, null=True)
+    job_city = models.CharField(max_length=100, blank=True, null=True)
+    job_state = models.CharField(max_length=100, blank=True, null=True)
+    job_country = models.CharField(max_length=10, blank=True, null=True)
+    job_benefits = models.JSONField(blank=True, null=True)
+    job_salary_string = models.CharField(max_length=100, blank=True, null=True)
+    job_min_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    job_max_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    job_salary_period = models.CharField(max_length=20, blank=True, null=True)
+    job_highlights = models.JSONField(blank=True, null=True)
+    required_technologies = models.JSONField(blank=True, null=True)
+    employer_reviews = models.JSONField(blank=True, null=True)
+    
+    # Metadata
+    fetched_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'external_jobs'
+        ordering = ['-job_posted_at_datetime_utc', '-fetched_at']
+        indexes = [
+            models.Index(fields=['job_id']),
+            models.Index(fields=['job_posted_at_datetime_utc']),
+            models.Index(fields=['job_location']),
+            models.Index(fields=['employer_name']),
+        ]
+    
+    def __str__(self):
+        return f"{self.job_title} at {self.employer_name}"
+
+
 class Application(models.Model):
     """
     Model for job applications

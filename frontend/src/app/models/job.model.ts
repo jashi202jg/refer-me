@@ -23,6 +23,63 @@ export interface Job {
   updated_at: string;
 }
 
+// External Job model (from JSearch API)
+export interface ExternalJob {
+  id?: number;
+  job_id: string;
+  job_title: string;
+  employer_name: string;
+  employer_logo?: string;
+  employer_website?: string;
+  job_publisher?: string;
+  job_employment_type?: string;
+  job_apply_link: string;
+  job_description: string;
+  job_is_remote?: boolean;
+  job_posted_at_timestamp?: number;
+  job_posted_at_datetime_utc?: string;
+  job_location?: string;
+  job_city?: string;
+  job_state?: string;
+  job_country?: string;
+  job_benefits?: string[];
+  job_salary_string?: string;
+  job_min_salary?: number;
+  job_max_salary?: number;
+  job_salary_period?: string;
+  job_highlights?: {
+    Qualifications?: string[];
+    Responsibilities?: string[];
+    Benefits?: string[];
+  };
+  required_technologies?: string[];
+  employer_reviews?: any[];
+  fetched_at?: string;
+  updated_at?: string;
+}
+
+// External Job Search Request
+export interface ExternalJobSearchRequest {
+  query: string;
+  num_pages?: number;
+  country?: string;
+  location?: string;
+  date_posted?: 'all' | 'today' | '3days' | 'week' | 'month';
+  work_from_home?: boolean;
+  employment_types?: string;
+  job_requirements?: string;
+  radius?: number;
+}
+
+// External Job Search Filters
+export interface ExternalJobFilters {
+  days?: number;
+  location?: string;
+  employment_type?: string;
+  remote?: boolean;
+  search?: string;
+}
+
 // Job create/update request
 export interface JobRequest {
   title: string;

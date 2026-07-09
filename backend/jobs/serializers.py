@@ -1,6 +1,15 @@
 from rest_framework import serializers
-from .models import Job, Application, Notification
+from .models import Job, Application, Notification, ExternalJob
 from accounts.serializers import UserSerializer
+
+
+class ExternalJobSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ExternalJob model
+    """
+    class Meta:
+        model = ExternalJob
+        fields = '__all__'
 
 
 class JobSerializer(serializers.ModelSerializer):

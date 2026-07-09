@@ -5,14 +5,16 @@ from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
-from .models import Job, Application, Notification
+from .models import Job, Application, Notification, ExternalJob
 from .serializers import (
     JobSerializer,
     JobListSerializer,
     ApplicationSerializer,
     ApplicationStatusUpdateSerializer,
-    NotificationSerializer
+    NotificationSerializer,
+    ExternalJobSerializer
 )
+from .external_job_service import ExternalJobService
 
 User = get_user_model()
 
@@ -278,5 +280,104 @@ class NotificationClearAllView(APIView):
     def delete(self, request):
         Notification.objects.filter(recipient=request.user).delete()
         return Response({'message': 'All notifications cleared'})
+
+
+class ExternalJobSearchView(APIView):
+    """
+    POST: Search for external jobs and cache them
+    GET: Get cached external jobs
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """
+        Get cached external jobs with filters
+        """
+        days = int(request.query_params.get('days', 7))
+        location = request.query_params.get('location', '')
+        employment_type = request.query_params.get('employment_type', '')
+        remote = request.query_params.get('remote', '') == 'true'
+        search = request.query_params.get('search', '')
+        
+        filters = {
+            'location': location,
+            'employment_type': employment_type,
+            'remote': remote,
+            'search': search,
+        }
+        
+        jobs = ExternalJobService.get_cached_jobs(days=days, **filters)
+        
+        # Pagination
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        paginator.page_size = 20
+        result_page = paginator.paginate_queryset(jobs, request)
+        
+        serializer = ExternalJobSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def post(self, request):
+        """
+        Search and fetch new external jobs
+        """
+        query = request.data.get('query', 'developer jobs')
+        num_pages = int(request.data.get('num_pages', 1))
+        country = request.data.get('country', 'in')
+        location = request.data.get('location')
+        date_posted = request.data.get('date_posted', 'week')
+        work_from_home = request.data.get('work_from_home', False)
+        employment_types = request.data.get('employment_types')
+        job_requirements = request.data.get('job_requirements')
+        radius = request.data.get('radius')
+        
+        jobs, cursor = ExternalJobService.search_jobs(
+            query=query,
+            num_pages=num_pages,
+            country=country,
+            location=location,
+            date_posted=date_posted,
+            work_from_home=work_from_home,
+            employment_types=employment_types,
+            job_requirements=job_requirements,
+            radius=radius
+        )
+        
+        serializer = ExternalJobSerializer(jobs, many=True)
+        return Response({
+            'count': len(jobs),
+            'cursor': cursor,
+            'results': serializer.data
+        })
+
+
+class ExternalJobDetailView(APIView):
+    """
+    GET: Get external job details by job_id
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, job_id):
+        """
+        Get job details - first check cache, then fetch from API if needed
+        """
+        try:
+            # Try to get from cache first
+            job = ExternalJob.objects.get(job_id=job_id)
+            serializer = ExternalJobSerializer(job)
+            return Response(serializer.data)
+        except ExternalJob.DoesNotExist:
+            # Fetch from API
+            country = request.query_params.get('country', 'in')
+            jobs = ExternalJobService.get_job_details(job_id, country)
+            
+            if jobs:
+                serializer = ExternalJobSerializer(jobs[0])
+                return Response(serializer.data)
+            else:
+                return Response(
+                    {'detail': 'Job not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
 

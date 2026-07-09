@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Job, JobRequest } from '../models/job.model';
+import { Job, JobRequest, ExternalJob, ExternalJobSearchRequest, ExternalJobFilters } from '../models/job.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobService {
   private apiUrl = `${environment.apiUrl}/jobs`;
+  private externalJobsUrl = `${environment.apiUrl}/external-jobs`;
 
   constructor(private http: HttpClient) {}
 
@@ -59,5 +60,42 @@ export class JobService {
    */
   deleteJob(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}/`);
+  }
+
+  // ===== External Jobs Methods =====
+
+  /**
+   * Get cached external jobs with filters
+   */
+  getExternalJobs(filters?: ExternalJobFilters): Observable<{ count: number; results: ExternalJob[] }> {
+    let params = new HttpParams();
+    
+    if (filters) {
+      if (filters.days) params = params.set('days', filters.days.toString());
+      if (filters.location) params = params.set('location', filters.location);
+      if (filters.employment_type) params = params.set('employment_type', filters.employment_type);
+      if (filters.remote) params = params.set('remote', 'true');
+      if (filters.search) params = params.set('search', filters.search);
+    }
+
+    return this.http.get<{ count: number; results: ExternalJob[] }>(this.externalJobsUrl + '/', { params });
+  }
+
+  /**
+   * Search and fetch new external jobs from API
+   */
+  searchExternalJobs(searchRequest: ExternalJobSearchRequest): Observable<{ count: number; cursor: string; results: ExternalJob[] }> {
+    return this.http.post<{ count: number; cursor: string; results: ExternalJob[] }>(
+      this.externalJobsUrl + '/',
+      searchRequest
+    );
+  }
+
+  /**
+   * Get external job details by job_id
+   */
+  getExternalJobById(jobId: string, country: string = 'in'): Observable<ExternalJob> {
+    let params = new HttpParams().set('country', country);
+    return this.http.get<ExternalJob>(`${this.externalJobsUrl}/${jobId}/`, { params });
   }
 }
