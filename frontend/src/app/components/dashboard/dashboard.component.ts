@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { JobService } from '../../services/job.service';
@@ -46,12 +46,15 @@ export class DashboardComponent implements OnInit {
     public authService: AuthService,
     private jobService: JobService,
     private applicationService: ApplicationService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.loadDashboardData(true);
-    this.loadExternalJobs();
+    if (this.authService.isCandidate) {
+      this.loadExternalJobs();
+    }
   }
 
   loadDashboardData(showLoadingIndicator: boolean = true) {
@@ -195,6 +198,13 @@ export class DashboardComponent implements OnInit {
 
   switchTab(tab: 'internal' | 'external') {
     this.activeTab = tab;
+  }
+
+  viewCompanyExternalJobs() {
+    const company = this.authService.currentUserValue?.company;
+    if (company) {
+      this.router.navigate(['/jobs'], { queryParams: { external: 'true', company: company } });
+    }
   }
 
   viewExternalJobDetails(jobId: string) {

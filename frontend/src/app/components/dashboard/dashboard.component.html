@@ -294,7 +294,7 @@
       <div class="section">
         <div class="section-header">
           <h2>My Posted Jobs</h2>
-          <a routerLink="/jobs" class="btn-link">View All</a>
+          <a [routerLink]="['/jobs']" [queryParams]="{ my_jobs: 'true' }" class="btn-link">View All</a>
         </div>
         <div class="section-body">
           <div class="job-card" *ngFor="let job of myJobs">
@@ -316,6 +316,23 @@
             </div>
             <p>You haven't posted any jobs yet</p>
             <a routerLink="/post-job" class="btn-primary">Post Your First Job</a>
+          </div>
+
+          <!-- Company External Job Openings CTA -->
+          <div class="company-action-banner" *ngIf="authService.currentUserValue?.company">
+            <div class="banner-content">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="banner-icon">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              <div class="banner-text">
+                <strong>Explore other openings at {{ authService.currentUserValue?.company }}</strong>
+                <p>View external postings and job openings from your company via the JSearch API.</p>
+              </div>
+            </div>
+            <button class="btn-company-jobs" (click)="viewCompanyExternalJobs()">
+              View Openings
+            </button>
           </div>
         </div>
       </div>
