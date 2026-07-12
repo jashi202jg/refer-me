@@ -8,13 +8,19 @@ from .views import (
     NotificationMarkReadView,
     NotificationMarkAllReadView,
     NotificationUnreadCountView,
-    NotificationClearAllView
+    NotificationClearAllView,
+    ExternalJobSearchView,
+    ExternalJobDetailView
 )
 
 urlpatterns = [
     # Job endpoints
     path('jobs/', JobListCreateView.as_view(), name='job-list-create'),
     path('jobs/<int:pk>/', JobDetailView.as_view(), name='job-detail'),
+    
+    # External job endpoints
+    path('external-jobs/', ExternalJobSearchView.as_view(), name='external-job-search'),
+    path('external-jobs/<str:job_id>/', ExternalJobDetailView.as_view(), name='external-job-detail'),
     
     # Application endpoints
     path('applications/', ApplicationListCreateView.as_view(), name='application-list-create'),

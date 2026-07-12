@@ -5,14 +5,16 @@ from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
-from .models import Job, Application, Notification
+from .models import Job, Application, Notification, CompanySync
 from .serializers import (
     JobSerializer,
     JobListSerializer,
     ApplicationSerializer,
     ApplicationStatusUpdateSerializer,
-    NotificationSerializer
+    NotificationSerializer,
+    ExternalJobSerializer
 )
+from .external_job_service import ExternalJobService
 
 User = get_user_model()
 
@@ -45,8 +47,35 @@ class JobListCreateView(generics.ListCreateAPIView):
             return JobSerializer
         return JobListSerializer
     
+    def sync_company_external_jobs(self, company_name):
+        from django.utils import timezone
+        from datetime import timedelta
+        from .external_job_service import ExternalJobService
+        
+        # Check if synced within the last 24 hours
+        sync_info = CompanySync.objects.filter(company__iexact=company_name).first()
+        now = timezone.now()
+        
+        if not sync_info or sync_info.last_synced_at < now - timedelta(hours=24):
+            print(f"Daily sync: Fetching external jobs for company: {company_name}")
+            try:
+                ExternalJobService.search_jobs(
+                    query=company_name,
+                    num_pages=1,
+                    country='in',
+                    date_posted='month'
+                )
+            except Exception as e:
+                print(f"Error during daily external job sync: {e}")
+            
+            CompanySync.objects.update_or_create(
+                company=company_name.lower(),
+                defaults={'last_synced_at': now}
+            )
+
     def get_queryset(self):
         queryset = Job.objects.select_related('posted_by').all()
+        user = self.request.user
         
         # Filter by status
         status_param = self.request.query_params.get('status', None)
@@ -67,14 +96,37 @@ class JobListCreateView(generics.ListCreateAPIView):
                 Q(location__icontains=search)
             )
         
-        # If user is referrer, show all their jobs
-        # Otherwise, only show open jobs
-        if self.request.user.is_referrer:
+        # Filter by is_external query param if explicitly provided
+        is_external_param = self.request.query_params.get('is_external', None)
+        if is_external_param is not None:
+            queryset = queryset.filter(is_external=is_external_param.lower() == 'true')
+        
+        # Role-based query logic
+        if user.is_referrer:
             user_jobs = self.request.query_params.get('my_jobs', None)
             if user_jobs:
-                queryset = queryset.filter(posted_by=self.request.user)
+                # Dashboard: only user-posted jobs from DB (internal)
+                queryset = queryset.filter(posted_by=user, is_external=False)
+            else:
+                # Jobs listing: all jobs (internal + external) under their company name
+                company_name = user.company
+                if company_name:
+                    # Sync company external openings if needed (24 hours check)
+                    self.sync_company_external_jobs(company_name)
+                    queryset = queryset.filter(company__iexact=company_name)
+                else:
+                    # Fallback to user posted if company not set
+                    queryset = queryset.filter(posted_by=user)
         else:
-            queryset = queryset.filter(status='open')
+            # Candidates: default to only open internal jobs
+            if is_external_param is None:
+                queryset = queryset.filter(is_external=False, status='open')
+            else:
+                if is_external_param.lower() == 'true':
+                    # Allow searching external cached jobs
+                    pass
+                else:
+                    queryset = queryset.filter(is_external=False, status='open')
         
         return queryset
     
@@ -278,5 +330,104 @@ class NotificationClearAllView(APIView):
     def delete(self, request):
         Notification.objects.filter(recipient=request.user).delete()
         return Response({'message': 'All notifications cleared'})
+
+
+class ExternalJobSearchView(APIView):
+    """
+    POST: Search for external jobs and cache them
+    GET: Get cached external jobs
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """
+        Get cached external jobs with filters
+        """
+        days = int(request.query_params.get('days', 7))
+        location = request.query_params.get('location', '')
+        employment_type = request.query_params.get('employment_type', '')
+        remote = request.query_params.get('remote', '') == 'true'
+        search = request.query_params.get('search', '')
+        
+        filters = {
+            'location': location,
+            'employment_type': employment_type,
+            'remote': remote,
+            'search': search,
+        }
+        
+        jobs = ExternalJobService.get_cached_jobs(days=days, **filters)
+        
+        # Pagination
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        paginator.page_size = 20
+        result_page = paginator.paginate_queryset(jobs, request)
+        
+        serializer = ExternalJobSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def post(self, request):
+        """
+        Search and fetch new external jobs
+        """
+        query = request.data.get('query', 'developer jobs')
+        num_pages = int(request.data.get('num_pages', 1))
+        country = request.data.get('country', 'in')
+        location = request.data.get('location')
+        date_posted = request.data.get('date_posted', 'week')
+        work_from_home = request.data.get('work_from_home', False)
+        employment_types = request.data.get('employment_types')
+        job_requirements = request.data.get('job_requirements')
+        radius = request.data.get('radius')
+        
+        jobs, cursor = ExternalJobService.search_jobs(
+            query=query,
+            num_pages=num_pages,
+            country=country,
+            location=location,
+            date_posted=date_posted,
+            work_from_home=work_from_home,
+            employment_types=employment_types,
+            job_requirements=job_requirements,
+            radius=radius
+        )
+        
+        serializer = ExternalJobSerializer(jobs, many=True)
+        return Response({
+            'count': len(jobs),
+            'cursor': cursor,
+            'results': serializer.data
+        })
+
+
+class ExternalJobDetailView(APIView):
+    """
+    GET: Get external job details by job_id
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, job_id):
+        """
+        Get job details - first check cache, then fetch from API if needed
+        """
+        try:
+            # Try to get from cache first
+            job = ExternalJob.objects.get(job_id=job_id)
+            serializer = ExternalJobSerializer(job)
+            return Response(serializer.data)
+        except ExternalJob.DoesNotExist:
+            # Fetch from API
+            country = request.query_params.get('country', 'in')
+            jobs = ExternalJobService.get_job_details(job_id, country)
+            
+            if jobs:
+                serializer = ExternalJobSerializer(jobs[0])
+                return Response(serializer.data)
+            else:
+                return Response(
+                    {'detail': 'Job not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
 
