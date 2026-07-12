@@ -121,6 +121,17 @@
         </div>
       </div>
 
+      <div class="job-section" *ngIf="job.is_external && job.job_publisher">
+        <h2>Source</h2>
+        <div class="posted-info">
+          <div class="poster-details">
+            <p>Via {{ job.job_publisher }}</p>
+            <p class="posted-date" *ngIf="job.job_posted_at_datetime_utc">Posted on {{ job.job_posted_at_datetime_utc | date:'MMMM d, y' }}</p>
+            <p class="posted-date" *ngIf="!job.job_posted_at_datetime_utc && job.created_at">Posted on {{ job.created_at | date:'MMMM d, y' }}</p>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Alerts -->
