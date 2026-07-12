@@ -18,9 +18,30 @@ class Job(models.Model):
         ('closed', 'Closed'),
     )
     
+    SOURCE_CHOICES = (
+        ('INTERNAL', 'Internal'),
+        ('EXTERNAL', 'External'),
+    )
+    
+    source = models.CharField(
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default='INTERNAL'
+    )
+    provider = models.CharField(max_length=100, blank=True, null=True, default='PaidAPI')
+    external_job_id = models.CharField(max_length=255, unique=True, null=True, blank=True, db_index=True)
+    
+    company_id = models.ForeignKey(
+        'accounts.Company',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='jobs'
+    )
+    company_name = models.CharField(max_length=100)
+    
     title = models.CharField(max_length=200)
     description = models.TextField()
-    company = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
     job_type = models.CharField(
         max_length=20,
@@ -28,13 +49,27 @@ class Job(models.Model):
         default='full_time'
     )
     experience_required = models.CharField(max_length=50, blank=True, null=True)
-    salary_range = models.CharField(max_length=100, blank=True, null=True)
+    
+    job_min_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    job_max_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    job_salary_period = models.CharField(max_length=20, blank=True, null=True)
+    job_salary_currency = models.CharField(max_length=10, blank=True, null=True)
+    job_salary_string = models.CharField(max_length=100, blank=True, null=True)
+    
     skills_required = models.TextField(help_text='Comma-separated skills', blank=True, null=True)
+    required_technologies = models.JSONField(blank=True, null=True)
+    
+    job_apply_link = models.URLField(blank=True, null=True)
+    
+    job_posted_at_datetime_utc = models.DateTimeField(blank=True, null=True)
+    expires_at = models.DateTimeField(blank=True, null=True)
+    
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
         default='open'
     )
+    is_active = models.BooleanField(default=True)
     
     posted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -44,41 +79,24 @@ class Job(models.Model):
         blank=True
     )
     
-    # Combined/unified fields for external jobs
-    is_external = models.BooleanField(default=False)
-    external_job_id = models.CharField(max_length=255, unique=True, null=True, blank=True, db_index=True)
-    employer_logo = models.URLField(blank=True, null=True)
-    employer_website = models.URLField(blank=True, null=True)
-    job_publisher = models.CharField(max_length=255, blank=True, null=True)
-    job_apply_link = models.URLField(blank=True, null=True)
-    job_is_remote = models.BooleanField(default=False, null=True, blank=True)
-    job_posted_at_datetime_utc = models.DateTimeField(blank=True, null=True)
-    job_benefits = models.JSONField(blank=True, null=True)
-    job_salary_string = models.CharField(max_length=100, blank=True, null=True)
-    job_min_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    job_max_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    job_salary_period = models.CharField(max_length=20, blank=True, null=True)
-    job_highlights = models.JSONField(blank=True, null=True)
-    required_technologies = models.JSONField(blank=True, null=True)
-    employer_reviews = models.JSONField(blank=True, null=True)
-    
-    # Sync column
-    last_synced_at = models.DateTimeField(blank=True, null=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    last_synced_at = models.DateTimeField(blank=True, null=True)
+    
+    provider_job_url = models.URLField(blank=True, null=True)
+    provider_response = models.JSONField(blank=True, null=True)
     
     class Meta:
         db_table = 'jobs'
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['external_job_id']),
-            models.Index(fields=['company']),
-            models.Index(fields=['is_external']),
+            models.Index(fields=['company_name']),
+            models.Index(fields=['source']),
         ]
     
     def __str__(self):
-        return f"{self.title} at {self.company}"
+        return f"{self.title} at {self.company_name}"
     
     @property
     def skills_list(self):

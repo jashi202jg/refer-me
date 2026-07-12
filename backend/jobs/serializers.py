@@ -3,15 +3,56 @@ from .models import Job, Application, Notification
 from accounts.serializers import UserSerializer
 
 
-class ExternalJobSerializer(serializers.ModelSerializer):
+class JobCompatibilityMixin(serializers.Serializer):
+    company = serializers.CharField(source='company_name', required=False, allow_blank=True)
+    is_external = serializers.SerializerMethodField()
+    employer_logo = serializers.SerializerMethodField()
+    employer_website = serializers.SerializerMethodField()
+    job_publisher = serializers.SerializerMethodField()
+    job_is_remote = serializers.SerializerMethodField()
+    job_benefits = serializers.SerializerMethodField()
+    job_highlights = serializers.SerializerMethodField()
+    employer_reviews = serializers.SerializerMethodField()
+    salary_range = serializers.SerializerMethodField()
+
+    def get_is_external(self, obj):
+        return obj.source == 'EXTERNAL'
+
+    def get_employer_logo(self, obj):
+        return (obj.provider_response or {}).get('employer_logo') if obj.source == 'EXTERNAL' else None
+
+    def get_employer_website(self, obj):
+        return (obj.provider_response or {}).get('employer_website') if obj.source == 'EXTERNAL' else None
+
+    def get_job_publisher(self, obj):
+        return (obj.provider_response or {}).get('job_publisher') if obj.source == 'EXTERNAL' else None
+
+    def get_job_is_remote(self, obj):
+        return (obj.provider_response or {}).get('job_is_remote', False) if obj.source == 'EXTERNAL' else False
+
+    def get_job_benefits(self, obj):
+        return (obj.provider_response or {}).get('job_benefits') if obj.source == 'EXTERNAL' else None
+
+    def get_job_highlights(self, obj):
+        return (obj.provider_response or {}).get('job_highlights') if obj.source == 'EXTERNAL' else None
+
+    def get_employer_reviews(self, obj):
+        return (obj.provider_response or {}).get('employer_reviews') if obj.source == 'EXTERNAL' else None
+
+    def get_salary_range(self, obj):
+        return obj.job_salary_string
+
+
+class ExternalJobSerializer(JobCompatibilityMixin, serializers.ModelSerializer):
     """
     Serializer for external job details from the unified Job model
     """
     # Backward compatibility aliases for JSearch UI elements
     job_title = serializers.CharField(source='title', read_only=True)
-    employer_name = serializers.CharField(source='company', read_only=True)
+    employer_name = serializers.CharField(source='company_name', read_only=True)
     job_location = serializers.CharField(source='location', read_only=True)
     job_employment_type = serializers.CharField(source='job_type', read_only=True)
+    company_name = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Job
@@ -27,23 +68,27 @@ class ExternalJobSerializer(serializers.ModelSerializer):
             'job_max_salary', 'job_salary_period', 'job_highlights',
             'required_technologies', 'employer_reviews', 'last_synced_at',
             'created_at', 'updated_at',
+            # New fields
+            'source', 'provider', 'company_id', 'company_name',
+            'job_salary_currency', 'expires_at', 'is_active',
+            'provider_job_url', 'provider_response',
             # Aliases
             'job_title', 'employer_name', 'job_location', 'job_employment_type'
         )
 
 
-class JobSerializer(serializers.ModelSerializer):
+class JobSerializer(JobCompatibilityMixin, serializers.ModelSerializer):
     """
     Serializer for Job model
     """
     posted_by_details = UserSerializer(source='posted_by', read_only=True)
     skills_list = serializers.ReadOnlyField()
     applications_count = serializers.SerializerMethodField()
-    company = serializers.CharField(required=False, allow_blank=True)
+    company_name = serializers.CharField(required=False, allow_blank=True)
     
     # Backward compatibility aliases for JSearch UI elements
     job_title = serializers.CharField(source='title', read_only=True)
-    employer_name = serializers.CharField(source='company', read_only=True)
+    employer_name = serializers.CharField(source='company_name', read_only=True)
     job_location = serializers.CharField(source='location', read_only=True)
     job_employment_type = serializers.CharField(source='job_type', read_only=True)
     
@@ -61,6 +106,10 @@ class JobSerializer(serializers.ModelSerializer):
             'job_max_salary', 'job_salary_period', 'job_highlights',
             'required_technologies', 'employer_reviews', 'last_synced_at',
             'created_at', 'updated_at',
+            # New fields
+            'source', 'provider', 'company_id', 'company_name',
+            'job_salary_currency', 'expires_at', 'is_active',
+            'provider_job_url', 'provider_response',
             # Aliases
             'job_title', 'employer_name', 'job_location', 'job_employment_type'
         )
@@ -78,9 +127,10 @@ class JobSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Only referrers can post jobs"
                 )
-            if not attrs.get('company'):
+            # If company_name is mapped from input 'company', it will be in attrs as 'company_name'
+            if not attrs.get('company_name'):
                 if user.company:
-                    attrs['company'] = user.company
+                    attrs['company_name'] = user.company
                 else:
                     raise serializers.ValidationError(
                         {"company": "Your profile company is not set. Please update your profile first."}
@@ -88,7 +138,7 @@ class JobSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class JobListSerializer(serializers.ModelSerializer):
+class JobListSerializer(JobCompatibilityMixin, serializers.ModelSerializer):
     """
     Simplified serializer for job listings
     """
@@ -98,10 +148,11 @@ class JobListSerializer(serializers.ModelSerializer):
         read_only=True
     )
     skills_list = serializers.ReadOnlyField()
+    company_name = serializers.CharField(required=False, allow_blank=True)
     
     # Backward compatibility aliases for JSearch UI elements
     job_title = serializers.CharField(source='title', read_only=True)
-    employer_name = serializers.CharField(source='company', read_only=True)
+    employer_name = serializers.CharField(source='company_name', read_only=True)
     job_location = serializers.CharField(source='location', read_only=True)
     job_employment_type = serializers.CharField(source='job_type', read_only=True)
     
@@ -114,6 +165,10 @@ class JobListSerializer(serializers.ModelSerializer):
             'is_external', 'employer_logo', 'job_apply_link',
             'job_is_remote', 'job_posted_at_datetime_utc',
             'job_publisher', 'last_synced_at',
+            # New fields
+            'source', 'provider', 'company_id', 'company_name',
+            'job_salary_currency', 'expires_at', 'is_active',
+            'provider_job_url', 'provider_response',
             # Aliases
             'job_title', 'employer_name', 'job_location', 'job_employment_type'
         )

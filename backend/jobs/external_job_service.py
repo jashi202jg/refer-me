@@ -91,6 +91,7 @@ class ExternalJobService:
         """
         saved_jobs = []
         from django.utils import timezone
+        from accounts.models import Company
         
         for job_data in jobs_data:
             job_id = job_data.get('job_id')
@@ -103,6 +104,16 @@ class ExternalJobService:
                 try:
                     posted_at_datetime = datetime.fromisoformat(
                         job_data['job_posted_at_datetime_utc'].replace('Z', '+00:00')
+                    )
+                except:
+                    pass
+            
+            # Parse expiration datetime if available
+            expires_at = None
+            if job_data.get('job_offer_expiration_datetime_utc'):
+                try:
+                    expires_at = datetime.fromisoformat(
+                        job_data['job_offer_expiration_datetime_utc'].replace('Z', '+00:00')
                     )
                 except:
                     pass
@@ -127,36 +138,36 @@ class ExternalJobService:
             
             # Resolve company name
             resolved_company = company_name or job_data.get('employer_name') or 'External Company'
+            company_obj = Company.objects.filter(name__iexact=resolved_company).first()
             
             # Prepare job fields
             job_fields = {
                 'title': (job_data.get('job_title') or '')[:200],
                 'description': job_data.get('job_description') or '',
-                'company': resolved_company[:100],
+                'company_name': resolved_company[:100],
+                'company_id': company_obj,
                 'location': (job_data.get('job_location') or job_data.get('job_city') or 'Remote')[:100],
                 'job_type': mapped_type,
                 'experience_required': 'Not specified',
-                'salary_range': (job_data.get('job_salary_string') or '')[:100],
                 'skills_required': skills_req,
                 'status': 'open',
                 'posted_by': None,
                 
-                # External specific
-                'is_external': True,
-                'employer_logo': job_data.get('employer_logo'),
-                'employer_website': job_data.get('employer_website'),
-                'job_publisher': (job_data.get('job_publisher') or '')[:255],
+                # New fields mapping
+                'source': 'EXTERNAL',
+                'provider': 'PaidAPI',
                 'job_apply_link': job_data.get('job_apply_link') or '',
-                'job_is_remote': job_data.get('job_is_remote', False),
                 'job_posted_at_datetime_utc': posted_at_datetime,
-                'job_benefits': job_data.get('job_benefits'),
-                'job_salary_string': (job_data.get('job_salary_string') or '')[:100],
                 'job_min_salary': job_data.get('job_min_salary'),
                 'job_max_salary': job_data.get('job_max_salary'),
                 'job_salary_period': (job_data.get('job_salary_period') or '')[:20],
-                'job_highlights': job_data.get('job_highlights'),
+                'job_salary_currency': job_data.get('job_salary_currency'),
+                'job_salary_string': (job_data.get('job_salary_string') or '')[:100],
                 'required_technologies': job_data.get('required_technologies'),
-                'employer_reviews': job_data.get('employer_reviews'),
+                'expires_at': expires_at,
+                'is_active': True,
+                'provider_job_url': job_data.get('job_google_link') or job_data.get('job_apply_link'),
+                'provider_response': job_data,
                 'last_synced_at': timezone.now()
             }
             
@@ -176,7 +187,7 @@ class ExternalJobService:
         """
         from django.utils import timezone
         
-        queryset = Job.objects.filter(is_external=True)
+        queryset = Job.objects.filter(source='EXTERNAL')
         
         # Filter by date
         if days:
@@ -199,14 +210,14 @@ class ExternalJobService:
                 queryset = queryset.filter(job_type='internship')
         
         if 'remote' in filters and filters['remote']:
-            queryset = queryset.filter(job_is_remote=True)
+            queryset = queryset.filter(provider_response__job_is_remote=True)
         
         if 'search' in filters and filters['search']:
             from django.db.models import Q
             search = filters['search']
             queryset = queryset.filter(
                 Q(title__icontains=search) |
-                Q(company__icontains=search) |
+                Q(company_name__icontains=search) |
                 Q(description__icontains=search)
             )
         

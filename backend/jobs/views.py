@@ -92,41 +92,41 @@ class JobListCreateView(generics.ListCreateAPIView):
         if search:
             queryset = queryset.filter(
                 Q(title__icontains=search) |
-                Q(company__icontains=search) |
+                Q(company_name__icontains=search) |
                 Q(location__icontains=search)
             )
         
         # Filter by is_external query param if explicitly provided
         is_external_param = self.request.query_params.get('is_external', None)
         if is_external_param is not None:
-            queryset = queryset.filter(is_external=is_external_param.lower() == 'true')
+            queryset = queryset.filter(source='EXTERNAL' if is_external_param.lower() == 'true' else 'INTERNAL')
         
         # Role-based query logic
         if user.is_referrer:
             user_jobs = self.request.query_params.get('my_jobs', None)
             if user_jobs:
                 # Dashboard: only user-posted jobs from DB (internal)
-                queryset = queryset.filter(posted_by=user, is_external=False)
+                queryset = queryset.filter(posted_by=user, source='INTERNAL')
             else:
                 # Jobs listing: all jobs (internal + external) under their company name
                 company_name = user.company
                 if company_name:
                     # Sync company external openings if needed (24 hours check)
                     self.sync_company_external_jobs(company_name)
-                    queryset = queryset.filter(company__iexact=company_name)
+                    queryset = queryset.filter(company_name__iexact=company_name)
                 else:
                     # Fallback to user posted if company not set
                     queryset = queryset.filter(posted_by=user)
         else:
             # Candidates: default to only open internal jobs
             if is_external_param is None:
-                queryset = queryset.filter(is_external=False, status='open')
+                queryset = queryset.filter(source='INTERNAL', status='open')
             else:
                 if is_external_param.lower() == 'true':
                     # Allow searching external cached jobs
                     pass
                 else:
-                    queryset = queryset.filter(is_external=False, status='open')
+                    queryset = queryset.filter(source='INTERNAL', status='open')
         
         return queryset
     
@@ -139,7 +139,7 @@ class JobListCreateView(generics.ListCreateAPIView):
                 recipient=candidate,
                 actor=self.request.user,
                 title='New Job Opening',
-                message=f"{job.company} posted a new opening for {job.title}",
+                message=f"{job.company_name} posted a new opening for {job.title}",
                 notification_type='new_job',
                 link=f"/jobs/{job.id}"
             )
@@ -250,7 +250,7 @@ class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
                 recipient=application.candidate,
                 actor=self.request.user,
                 title='Application Status Updated',
-                message=f"Your application for {job.title} at {job.company} status was updated to '{application.get_status_display()}'.",
+                message=f"Your application for {job.title} at {job.company_name} status was updated to '{application.get_status_display()}'.",
                 notification_type='status_change',
                 link='/applications'
             )
