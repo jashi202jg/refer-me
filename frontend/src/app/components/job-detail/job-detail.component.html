@@ -3,11 +3,11 @@
 <div class="job-detail-container">
 
   <div class="back-nav">
-    <a routerLink="/jobs" class="btn-back-nav">
+    <a (click)="goBack()" class="btn-back-nav" style="cursor: pointer;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
         <polyline points="15 18 9 12 15 6"></polyline>
       </svg>
-      Back to Jobs
+      Back
     </a>
   </div>
 
@@ -154,11 +154,11 @@
         <button (click)="deleteJob()" class="btn-danger">Delete Job</button>
       </div>
 
-      <a routerLink="/jobs" class="btn-back">
+      <a (click)="goBack()" class="btn-back" style="cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        Back to Jobs
+        Back
       </a>
     </div>
 

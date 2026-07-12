@@ -147,6 +147,10 @@ export class JobDetailComponent implements OnInit {
     }
   }
 
+  goBack() {
+    window.history.back();
+  }
+
   get canApply(): boolean {
     return this.authService.isCandidate && this.job?.status === 'open';
   }

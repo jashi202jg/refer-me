@@ -40,7 +40,7 @@
           <a routerLink="/applications" class="btn-link" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 600;">View All</a>
         </div>
         <div class="section-body" style="padding: 12px 20px 16px; max-height: 180px; overflow-y: auto;">
-          <div class="application-card" *ngFor="let application of applications" style="padding: 10px; margin-bottom: 8px; background: #fafafa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9;">
+          <div class="application-card" *ngFor="let application of applications" routerLink="/applications" style="padding: 10px; margin-bottom: 8px; background: #fafafa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9; cursor: pointer;">
             <div style="flex: 1; min-width: 0; padding-right: 8px;">
               <h4 style="margin: 0; font-size: 0.85rem; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ application.job_details?.title }}</h4>
               <p class="company" style="margin: 2px 0 0; font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ application.job_details?.company }}</p>
@@ -182,7 +182,7 @@
           <a routerLink="/applications" class="btn-link">View All</a>
         </div>
         <div class="section-body">
-          <div class="application-card" *ngFor="let application of applications">
+          <div class="application-card" *ngFor="let application of applications" routerLink="/applications" style="cursor: pointer;">
             <h3>{{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}</h3>
             <p class="company">Applied for: {{ application.job_details?.title }}</p>
             <div class="application-meta">

@@ -130,6 +130,7 @@
 
       <!-- Actions for Referrer -->
       <div class="actions" *ngIf="authService.isReferrer">
+        <a [routerLink]="['/jobs', application.job]" class="btn-view" style="margin-right: auto;">View Job</a>
         <button
           (click)="updateStatus(application.id, 'reviewing')"
           class="btn-action btn-reviewing"
