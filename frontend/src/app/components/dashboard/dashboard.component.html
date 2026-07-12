@@ -34,24 +34,31 @@
       </div>
 
       <!-- My Applications Section -->
-      <div class="section" style="margin-bottom: 0;">
-        <div class="section-header" style="padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center;">
-          <h2 style="font-size: 0.95rem; margin: 0; font-weight: 700; color: #0f172a;">My Applications</h2>
-          <a routerLink="/applications" class="btn-link" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 600;">View All</a>
+      <div class="section mini-section">
+        <div class="section-header">
+          <h2>My Applications</h2>
+          <a routerLink="/applications" class="btn-link">View All</a>
         </div>
-        <div class="section-body" style="padding: 12px 20px 16px; max-height: 180px; overflow-y: auto;">
-          <div class="application-card" *ngFor="let application of applications" routerLink="/applications" style="padding: 10px; margin-bottom: 8px; background: #fafafa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9; cursor: pointer;">
-            <div style="flex: 1; min-width: 0; padding-right: 8px;">
-              <h4 style="margin: 0; font-size: 0.85rem; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ application.job_details?.title }}</h4>
-              <p class="company" style="margin: 2px 0 0; font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ application.job_details?.company }}</p>
+        <div class="section-body">
+          <div class="application-card clickable-card" *ngFor="let application of applications" routerLink="/applications">
+            <div class="card-text">
+              <h4>{{ application.job_details?.title }}</h4>
+              <p class="company">{{ application.job_details?.company }}</p>
             </div>
-            <span class="badge" [ngClass]="getStatusClass(application.status)" style="font-size: 0.65rem; padding: 2px 6px; flex-shrink: 0; border-radius: 20px;">
-              {{ application.status | titlecase }}
-            </span>
+            <div class="card-meta-wrap">
+              <span class="badge" [ngClass]="getStatusClass(application.status)">
+                {{ application.status | titlecase }}
+              </span>
+              <div class="card-chevron-small">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
           </div>
-          <div *ngIf="applications.length === 0" class="empty-state" style="padding: 20px 0; text-align: center; color: #94a3b8;">
-            <p style="font-size: 0.8rem; margin: 0 0 10px;">You haven't requested any referrals yet.</p>
-            <a routerLink="/jobs" class="btn-primary" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 8px;">Browse Jobs</a>
+          <div *ngIf="applications.length === 0" class="empty-state">
+            <p>You haven't requested any referrals yet.</p>
+            <a routerLink="/jobs" class="btn-primary">Browse Jobs</a>
           </div>
         </div>
       </div>
@@ -136,15 +143,21 @@
           <a [routerLink]="['/jobs']" [queryParams]="{ my_jobs: 'true' }" class="btn-link">View All</a>
         </div>
         <div class="section-body">
-          <div class="job-card" *ngFor="let job of myJobs">
-            <h3>{{ job.title }}</h3>
-            <p class="company">{{ job.company }} &middot; {{ job.location }}</p>
-            <div class="job-meta">
-              <span class="badge">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
-              <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
-              <span class="meta-applicants">{{ job.applications_count }} applicants</span>
+          <div class="job-card clickable-card" *ngFor="let job of myJobs" [routerLink]="['/jobs', job.id]">
+            <div class="card-content">
+              <h3>{{ job.title }}</h3>
+              <p class="company">{{ job.company }} &middot; {{ job.location }}</p>
+              <div class="job-meta">
+                <span class="badge">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
+                <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
+                <span class="meta-applicants">{{ job.applications_count }} applicants</span>
+              </div>
             </div>
-            <a [routerLink]="['/jobs', job.id]" class="btn-view">View Details</a>
+            <div class="card-chevron">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
           </div>
           <div *ngIf="myJobs.length === 0" class="empty-state">
             <div class="empty-icon-wrap">
@@ -182,14 +195,21 @@
           <a routerLink="/applications" class="btn-link">View All</a>
         </div>
         <div class="section-body">
-          <div class="application-card" *ngFor="let application of applications" routerLink="/applications" style="cursor: pointer;">
-            <h3>{{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}</h3>
-            <p class="company">Applied for: {{ application.job_details?.title }}</p>
-            <div class="application-meta">
-              <span>{{ application.applied_at | date:'MMM d, y' }}</span>
-              <span class="badge" [ngClass]="getStatusClass(application.status)">
-                {{ application.status | titlecase }}
-              </span>
+          <div class="application-card clickable-card" *ngFor="let application of applications" routerLink="/applications">
+            <div class="card-content">
+              <h3>{{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}</h3>
+              <p class="company">Applied for: {{ application.job_details?.title }}</p>
+              <div class="application-meta">
+                <span>{{ application.applied_at | date:'MMM d, y' }}</span>
+                <span class="badge" [ngClass]="getStatusClass(application.status)">
+                  {{ application.status | titlecase }}
+                </span>
+              </div>
+            </div>
+            <div class="card-chevron">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </div>
           </div>
           <div *ngIf="applications.length === 0" class="empty-state">
