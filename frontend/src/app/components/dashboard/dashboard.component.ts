@@ -18,6 +18,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 })
 export class DashboardComponent implements OnInit {
   recentJobs: Job[] = [];
+  totalJobsCount = 0;
   externalJobs: ExternalJob[] = [];
   applications: Application[] = [];
   myJobs: Job[] = [];
@@ -64,6 +65,7 @@ export class DashboardComponent implements OnInit {
       this.jobService.getJobs({ status: 'open' }).subscribe({
         next: (response) => {
           this.recentJobs = response.results.slice(0, 5);
+          this.totalJobsCount = response.count;
           this.isLoading = false;
         },
         error: (error) => {
