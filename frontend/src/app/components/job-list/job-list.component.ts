@@ -56,16 +56,14 @@ export class JobListComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['my_jobs'] === 'true' || params['my_jobs'] === true) {
         this.showMyJobs = true;
-        this.activeTab = 'internal';
+        this.searchTerm = '';
         this.loadJobs(true);
       } else if (params['external'] === 'true' && params['company']) {
-        this.activeTab = 'external';
-        const companyName = params['company'];
-        this.externalFilters.search = companyName;
-        this.fetchExternalJobsForCompany(companyName);
+        this.showMyJobs = false;
+        this.searchTerm = params['company'];
+        this.loadJobs(true);
       } else {
         this.loadJobs(true);
-        this.loadExternalJobs();
       }
     });
   }

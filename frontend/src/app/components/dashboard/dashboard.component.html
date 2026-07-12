@@ -54,13 +54,13 @@
               class="tab-btn" 
               [class.active]="activeTab === 'internal'"
               (click)="switchTab('internal')">
-              Internal Referrals
+              Featured Referrals
             </button>
             <button 
               class="tab-btn" 
               [class.active]="activeTab === 'external'"
               (click)="switchTab('external')">
-              External Opportunities
+              Other Opportunities
             </button>
           </div>
         </div>
@@ -101,8 +101,8 @@
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
               </svg>
               <div class="banner-text">
-                <strong>External Jobs from JSearch API</strong>
-                <p>Cached jobs shown below. Click "Fetch Latest Jobs" to get fresh listings from the API.</p>
+                <strong>Explore More Opportunities</strong>
+                <p>Refresh recommended listings from across the web. Click "Load Latest" to update.</p>
               </div>
             </div>
             <button 
@@ -112,8 +112,8 @@
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
               </svg>
-              <span *ngIf="!isFetchingFromAPI">Fetch Latest Jobs</span>
-              <span *ngIf="isFetchingFromAPI">Fetching...</span>
+              <span *ngIf="!isFetchingFromAPI">Load Latest</span>
+              <span *ngIf="isFetchingFromAPI">Loading...</span>
             </button>
           </div>
 
@@ -186,7 +186,6 @@
                   <span *ngIf="job.job_location"> &middot; {{ job.job_location }}</span>
                 </p>
               </div>
-              <span class="external-badge">External</span>
             </div>
             
             <div class="job-meta">
@@ -210,11 +209,8 @@
 
             <div class="job-actions">
               <a [href]="job.job_apply_link" target="_blank" rel="noopener noreferrer" class="btn-apply">
-                Apply on {{ job.job_publisher }}
-              </a>
-              <button class="btn-view-details" (click)="viewExternalJobDetails(job.job_id)">
                 View Details
-              </button>
+              </a>
             </div>
           </div>
 
@@ -326,8 +322,8 @@
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
               </svg>
               <div class="banner-text">
-                <strong>Explore other openings at {{ authService.currentUserValue?.company }}</strong>
-                <p>View external postings and job openings from your company via the JSearch API.</p>
+                <strong>Explore more openings at {{ authService.currentUserValue?.company }}</strong>
+                <p>View all active job listings and openings from your company.</p>
               </div>
             </div>
             <button class="btn-company-jobs" (click)="viewCompanyExternalJobs()">

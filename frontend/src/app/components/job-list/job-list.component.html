@@ -15,27 +15,9 @@
     </a>
   </div>
 
-  <!-- Tab navigation -->
-  <div class="tab-container">
-    <div class="tab-buttons">
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'internal'"
-        (click)="switchTab('internal')">
-        Internal Referrals
-      </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'external'"
-        (click)="switchTab('external')">
-        External Opportunities
-      </button>
-    </div>
-  </div>
-
   <div class="filters-section">
-    <!-- Internal tab filters -->
-    <div *ngIf="activeTab === 'internal'">
+    <!-- Filters -->
+    <div>
       <div class="search-bar">
         <div class="search-input-wrapper">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
@@ -76,99 +58,20 @@
         <button (click)="clearFilters()" class="btn-clear">Clear Filters</button>
       </div>
     </div>
-
-    <!-- External tab filters -->
-    <div *ngIf="activeTab === 'external'">
-      <div class="filters-row">
-        <div class="filter-group">
-          <label>Last N days</label>
-          <select [(ngModel)]="externalFilters.days" (change)="applyExternalFilters()" class="filter-select">
-            <option [value]="1">Last 24 hours</option>
-            <option [value]="3">Last 3 days</option>
-            <option [value]="7">Last 7 days</option>
-            <option [value]="30">Last 30 days</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Location</label>
-          <input 
-            type="text" 
-            [(ngModel)]="externalFilters.location" 
-            placeholder="e.g., Chicago, IL"
-            (keyup.enter)="applyExternalFilters()"
-            class="search-input-simple">
-        </div>
-        <div class="filter-group">
-          <label>Employment Type</label>
-          <select [(ngModel)]="externalFilters.employment_type" (change)="applyExternalFilters()" class="filter-select">
-            <option value="">All Types</option>
-            <option value="FULLTIME">Full-time</option>
-            <option value="PARTTIME">Part-time</option>
-            <option value="CONTRACTOR">Contract</option>
-            <option value="INTERN">Internship</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Search / Company</label>
-          <input 
-            type="text" 
-            [(ngModel)]="externalFilters.search" 
-            placeholder="Job title, company..."
-            (keyup.enter)="applyExternalFilters()"
-            class="search-input-simple">
-        </div>
-      </div>
-      <div class="filters-actions">
-        <label class="checkbox-label">
-          <input type="checkbox" [(ngModel)]="externalFilters.remote" (change)="applyExternalFilters()">
-          <span>Remote Only</span>
-        </label>
-        <button class="btn-secondary" (click)="clearExternalFilters()">Clear Filters</button>
-        <button class="btn-primary" (click)="applyExternalFilters()">Apply Filters</button>
-      </div>
-    </div>
   </div>
 
-  <!-- API Fetch Action for External Tab -->
-  <div class="api-fetch-banner" *ngIf="activeTab === 'external'">
-    <div class="banner-content">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="banner-svg">
-        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-      </svg>
-      <div class="banner-text">
-        <strong>External Jobs from JSearch API</strong>
-        <p>Cached jobs shown below. Click "Fetch Latest Jobs" to get fresh listings from the API using your Search filter.</p>
-      </div>
-    </div>
-    <button 
-      class="btn-fetch-api" 
-      (click)="fetchFromExternalAPI()"
-      [disabled]="isFetchingFromAPI">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
-        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-      </svg>
-      <span *ngIf="!isFetchingFromAPI">Fetch Latest Jobs</span>
-      <span *ngIf="isFetchingFromAPI">Fetching...</span>
-    </button>
-  </div>
-
-  <div class="loading" *ngIf="isLoading && activeTab === 'internal'">
+  <div class="loading" *ngIf="isLoading">
     <div class="loading-spinner"></div>
     <p>Loading jobs...</p>
   </div>
 
-  <div class="loading" *ngIf="isLoadingExternal && activeTab === 'external'">
-    <div class="loading-spinner"></div>
-    <p>Loading external jobs...</p>
-  </div>
-
-  <!-- Internal Jobs Grid -->
-  <div class="jobs-grid" *ngIf="!isLoading && activeTab === 'internal'">
-    <div class="job-card" *ngFor="let job of jobs" [class.external-card-item]="job.is_external">
+  <!-- Unified Jobs Grid -->
+  <div class="jobs-grid" *ngIf="!isLoading">
+    <div class="job-card" *ngFor="let job of jobs">
       <div class="job-card-header">
         <h2>{{ job.title }}</h2>
         <span class="badge" [ngClass]="getStatusClass(job.status)" *ngIf="!job.is_external">{{ job.status | titlecase }}</span>
-        <span class="badge external-badge" *ngIf="job.is_external">External</span>
+        <span class="badge status-open" *ngIf="job.is_external">Open</span>
       </div>
 
       <p class="company">{{ job.company }}</p>
@@ -235,7 +138,7 @@
           </span>
         </div>
         <a [routerLink]="['/jobs', job.id]" class="btn-view" *ngIf="!job.is_external">View Details</a>
-        <a [href]="job.job_apply_link" target="_blank" rel="noopener noreferrer" class="btn-view" *ngIf="job.is_external">Apply Link</a>
+        <a [href]="job.job_apply_link" target="_blank" rel="noopener noreferrer" class="btn-view" *ngIf="job.is_external">View Details</a>
       </div>
     </div>
 
@@ -249,82 +152,6 @@
       <h3>No jobs found</h3>
       <p>Try adjusting your filters or search criteria</p>
       <button (click)="clearFilters()" class="btn-primary">Clear All Filters</button>
-    </div>
-  </div>
-
-  <!-- External Jobs Grid -->
-  <div class="jobs-grid" *ngIf="!isLoadingExternal && activeTab === 'external'">
-    <div class="job-card external-card-item" *ngFor="let job of externalJobs">
-      <div class="job-card-header">
-        <div class="header-logo-group">
-          <img *ngIf="job.employer_logo" [src]="job.employer_logo" [alt]="job.employer_name" class="employer-logo-sm">
-          <div>
-            <h2>{{ job.job_title }}</h2>
-            <p class="company">{{ job.employer_name }}</p>
-          </div>
-        </div>
-        <span class="badge external-badge">External</span>
-      </div>
-
-      <div class="job-meta-row">
-        <span class="meta-item" *ngIf="job.job_location">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-          {{ job.job_location }}
-        </span>
-        <span class="meta-item" *ngIf="job.job_employment_type">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-          </svg>
-          {{ job.job_employment_type | titlecase }}
-        </span>
-        <span class="meta-item" *ngIf="job.job_is_remote">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          Remote Only
-        </span>
-      </div>
-
-      <div class="job-type-row" *ngIf="job.job_is_remote">
-        <span class="badge-secondary">Remote</span>
-      </div>
-
-      <p class="description" *ngIf="job.job_description">{{ job.job_description.length > 120 ? job.job_description.slice(0, 120) + '...' : job.job_description }}</p>
-
-      <div class="job-card-footer">
-        <div class="footer-meta">
-          <span class="posted-by" *ngIf="job.job_posted_at_datetime_utc">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Posted {{ getRelativeTime(job.job_posted_at_datetime_utc) }}
-          </span>
-          <span class="posted-by" *ngIf="job.job_publisher">
-            Via {{ job.job_publisher }}
-          </span>
-        </div>
-        <a [href]="job.job_apply_link" target="_blank" rel="noopener noreferrer" class="btn-view">Apply Link</a>
-      </div>
-    </div>
-
-    <div *ngIf="externalJobs.length === 0" class="empty-state">
-      <div class="empty-icon-wrap">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-      </div>
-      <h3>No external jobs found</h3>
-      <p>Try adjusting your search filters or fetch from API</p>
-      <button (click)="clearExternalFilters()" class="btn-primary">Clear Filters</button>
     </div>
   </div>
 </div>
