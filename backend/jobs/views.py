@@ -5,7 +5,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
-from .models import Job, Application, Notification, ExternalJob
+from .models import Job, Application, Notification, CompanySync
 from .serializers import (
     JobSerializer,
     JobListSerializer,
@@ -47,8 +47,35 @@ class JobListCreateView(generics.ListCreateAPIView):
             return JobSerializer
         return JobListSerializer
     
+    def sync_company_external_jobs(self, company_name):
+        from django.utils import timezone
+        from datetime import timedelta
+        from .external_job_service import ExternalJobService
+        
+        # Check if synced within the last 24 hours
+        sync_info = CompanySync.objects.filter(company__iexact=company_name).first()
+        now = timezone.now()
+        
+        if not sync_info or sync_info.last_synced_at < now - timedelta(hours=24):
+            print(f"Daily sync: Fetching external jobs for company: {company_name}")
+            try:
+                ExternalJobService.search_jobs(
+                    query=company_name,
+                    num_pages=1,
+                    country='in',
+                    date_posted='month'
+                )
+            except Exception as e:
+                print(f"Error during daily external job sync: {e}")
+            
+            CompanySync.objects.update_or_create(
+                company=company_name.lower(),
+                defaults={'last_synced_at': now}
+            )
+
     def get_queryset(self):
         queryset = Job.objects.select_related('posted_by').all()
+        user = self.request.user
         
         # Filter by status
         status_param = self.request.query_params.get('status', None)
@@ -69,14 +96,37 @@ class JobListCreateView(generics.ListCreateAPIView):
                 Q(location__icontains=search)
             )
         
-        # If user is referrer, show all their jobs
-        # Otherwise, only show open jobs
-        if self.request.user.is_referrer:
+        # Filter by is_external query param if explicitly provided
+        is_external_param = self.request.query_params.get('is_external', None)
+        if is_external_param is not None:
+            queryset = queryset.filter(is_external=is_external_param.lower() == 'true')
+        
+        # Role-based query logic
+        if user.is_referrer:
             user_jobs = self.request.query_params.get('my_jobs', None)
             if user_jobs:
-                queryset = queryset.filter(posted_by=self.request.user)
+                # Dashboard: only user-posted jobs from DB (internal)
+                queryset = queryset.filter(posted_by=user, is_external=False)
+            else:
+                # Jobs listing: all jobs (internal + external) under their company name
+                company_name = user.company
+                if company_name:
+                    # Sync company external openings if needed (24 hours check)
+                    self.sync_company_external_jobs(company_name)
+                    queryset = queryset.filter(company__iexact=company_name)
+                else:
+                    # Fallback to user posted if company not set
+                    queryset = queryset.filter(posted_by=user)
         else:
-            queryset = queryset.filter(status='open')
+            # Candidates: default to only open internal jobs
+            if is_external_param is None:
+                queryset = queryset.filter(is_external=False, status='open')
+            else:
+                if is_external_param.lower() == 'true':
+                    # Allow searching external cached jobs
+                    pass
+                else:
+                    queryset = queryset.filter(is_external=False, status='open')
         
         return queryset
     

@@ -1,36 +1,12 @@
 from django.contrib import admin
-from .models import Job, Application, ExternalJob
+from .models import Job, Application, CompanySync
 
 
-@admin.register(ExternalJob)
-class ExternalJobAdmin(admin.ModelAdmin):
-    """
-    Admin configuration for ExternalJob model
-    """
-    list_display = ('job_title', 'employer_name', 'job_location', 'job_employment_type', 'job_posted_at_datetime_utc', 'fetched_at')
-    list_filter = ('job_employment_type', 'job_is_remote', 'job_country', 'fetched_at')
-    search_fields = ('job_title', 'employer_name', 'job_location', 'job_description')
+@admin.register(CompanySync)
+class CompanySyncAdmin(admin.ModelAdmin):
+    list_display = ('company', 'last_synced_at')
+    search_fields = ('company',)
     list_per_page = 20
-    date_hierarchy = 'job_posted_at_datetime_utc'
-    readonly_fields = ('job_id', 'fetched_at', 'updated_at')
-    
-    fieldsets = (
-        ('Job Information', {
-            'fields': ('job_id', 'job_title', 'employer_name', 'employer_logo', 'employer_website')
-        }),
-        ('Job Details', {
-            'fields': ('job_description', 'job_employment_type', 'job_is_remote', 'job_apply_link')
-        }),
-        ('Location', {
-            'fields': ('job_location', 'job_city', 'job_state', 'job_country')
-        }),
-        ('Salary', {
-            'fields': ('job_salary_string', 'job_min_salary', 'job_max_salary', 'job_salary_period')
-        }),
-        ('Metadata', {
-            'fields': ('job_posted_at_datetime_utc', 'job_posted_at_timestamp', 'job_publisher', 'fetched_at', 'updated_at')
-        }),
-    )
 
 
 @admin.register(Job)
@@ -38,8 +14,8 @@ class JobAdmin(admin.ModelAdmin):
     """
     Admin configuration for Job model
     """
-    list_display = ('title', 'company', 'location', 'job_type', 'status', 'posted_by', 'created_at')
-    list_filter = ('job_type', 'status', 'created_at')
+    list_display = ('title', 'company', 'location', 'job_type', 'status', 'is_external', 'posted_by', 'created_at')
+    list_filter = ('job_type', 'status', 'is_external', 'created_at')
     search_fields = ('title', 'company', 'location', 'description')
     list_per_page = 20
     date_hierarchy = 'created_at'
@@ -52,7 +28,7 @@ class JobAdmin(admin.ModelAdmin):
             'fields': ('job_type', 'experience_required', 'salary_range', 'skills_required')
         }),
         ('Status & Owner', {
-            'fields': ('status', 'posted_by')
+            'fields': ('status', 'posted_by', 'is_external', 'external_job_id', 'last_synced_at')
         }),
     )
 

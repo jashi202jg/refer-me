@@ -8,10 +8,10 @@ export interface Job {
   job_type: 'full_time' | 'part_time' | 'contract' | 'internship';
   experience_required?: string;
   salary_range?: string;
-  skills_required: string;
-  skills_list: string[];
+  skills_required?: string;
+  skills_list?: string[];
   status: 'open' | 'closed';
-  posted_by: number;
+  posted_by?: number | null;
   posted_by_details?: {
     id: number;
     username: string;
@@ -21,28 +21,17 @@ export interface Job {
   applications_count?: number;
   created_at: string;
   updated_at: string;
-}
 
-// External Job model (from JSearch API)
-export interface ExternalJob {
-  id?: number;
-  job_id: string;
-  job_title: string;
-  employer_name: string;
+  // Unified external columns
+  is_external?: boolean;
+  external_job_id?: string;
   employer_logo?: string;
   employer_website?: string;
   job_publisher?: string;
-  job_employment_type?: string;
-  job_apply_link: string;
-  job_description: string;
+  job_apply_link?: string;
   job_is_remote?: boolean;
-  job_posted_at_timestamp?: number;
   job_posted_at_datetime_utc?: string;
-  job_location?: string;
-  job_city?: string;
-  job_state?: string;
-  job_country?: string;
-  job_benefits?: string[];
+  job_benefits?: any;
   job_salary_string?: string;
   job_min_salary?: number;
   job_max_salary?: number;
@@ -52,10 +41,24 @@ export interface ExternalJob {
     Responsibilities?: string[];
     Benefits?: string[];
   };
-  required_technologies?: string[];
+  required_technologies?: any;
   employer_reviews?: any[];
-  fetched_at?: string;
-  updated_at?: string;
+  last_synced_at?: string;
+  job_employment_type?: string;
+}
+
+// External Job model (extends Job for unified usage)
+export interface ExternalJob extends Job {
+  job_id: string;
+  job_title: string;
+  employer_name: string;
+  job_location?: string;
+  job_city?: string;
+  job_state?: string;
+  job_country?: string;
+  job_apply_link: string;
+  job_description: string;
+  job_employment_type?: string;
 }
 
 // External Job Search Request

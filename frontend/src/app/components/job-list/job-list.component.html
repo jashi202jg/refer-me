@@ -164,10 +164,11 @@
 
   <!-- Internal Jobs Grid -->
   <div class="jobs-grid" *ngIf="!isLoading && activeTab === 'internal'">
-    <div class="job-card" *ngFor="let job of jobs">
+    <div class="job-card" *ngFor="let job of jobs" [class.external-card-item]="job.is_external">
       <div class="job-card-header">
         <h2>{{ job.title }}</h2>
-        <span class="badge" [ngClass]="getStatusClass(job.status)">{{ job.status | titlecase }}</span>
+        <span class="badge" [ngClass]="getStatusClass(job.status)" *ngIf="!job.is_external">{{ job.status | titlecase }}</span>
+        <span class="badge external-badge" *ngIf="job.is_external">External</span>
       </div>
 
       <p class="company">{{ job.company }}</p>
@@ -180,7 +181,7 @@
           </svg>
           {{ job.location }}
         </span>
-        <span class="meta-item" *ngIf="job.experience_required">
+        <span class="meta-item" *ngIf="job.experience_required && !job.is_external">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
             <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
@@ -200,7 +201,7 @@
         <span class="badge-secondary">{{ (job.job_type || '').replace('_', ' ') | titlecase }}</span>
       </div>
 
-      <div class="skills" *ngIf="job.skills_list">
+      <div class="skills" *ngIf="job.skills_list && job.skills_list.length > 0">
         <span class="skill-tag" *ngFor="let skill of job.skills_list.slice(0, 3)">
           {{ skill }}
         </span>
@@ -220,7 +221,10 @@
             </svg>
             {{ job.posted_by_details.first_name }} {{ job.posted_by_details.last_name }}
           </span>
-          <span class="applications-count" *ngIf="job.applications_count !== undefined">
+          <span class="posted-by" *ngIf="job.is_external && job.job_publisher">
+            Via {{ job.job_publisher }}
+          </span>
+          <span class="applications-count" *ngIf="job.applications_count !== undefined && !job.is_external">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -230,7 +234,8 @@
             {{ job.applications_count }} applicants
           </span>
         </div>
-        <a [routerLink]="['/jobs', job.id]" class="btn-view">View Details</a>
+        <a [routerLink]="['/jobs', job.id]" class="btn-view" *ngIf="!job.is_external">View Details</a>
+        <a [href]="job.job_apply_link" target="_blank" rel="noopener noreferrer" class="btn-view" *ngIf="job.is_external">Apply Link</a>
       </div>
     </div>
 

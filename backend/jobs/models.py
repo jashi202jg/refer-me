@@ -29,7 +29,7 @@ class Job(models.Model):
     )
     experience_required = models.CharField(max_length=50, blank=True, null=True)
     salary_range = models.CharField(max_length=100, blank=True, null=True)
-    skills_required = models.TextField(help_text='Comma-separated skills')
+    skills_required = models.TextField(help_text='Comma-separated skills', blank=True, null=True)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -39,45 +39,20 @@ class Job(models.Model):
     posted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='posted_jobs'
+        related_name='posted_jobs',
+        null=True,
+        blank=True
     )
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        db_table = 'jobs'
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"{self.title} at {self.company}"
-    
-    @property
-    def skills_list(self):
-        """Return skills as a list"""
-        return [skill.strip() for skill in self.skills_required.split(',')]
-
-
-class ExternalJob(models.Model):
-    """
-    Model for externally fetched jobs from JSearch API
-    """
-    job_id = models.CharField(max_length=255, unique=True, db_index=True)
-    job_title = models.CharField(max_length=500)
-    employer_name = models.CharField(max_length=255)
+    # Combined/unified fields for external jobs
+    is_external = models.BooleanField(default=False)
+    external_job_id = models.CharField(max_length=255, unique=True, null=True, blank=True, db_index=True)
     employer_logo = models.URLField(blank=True, null=True)
     employer_website = models.URLField(blank=True, null=True)
     job_publisher = models.CharField(max_length=255, blank=True, null=True)
-    job_employment_type = models.CharField(max_length=50, blank=True, null=True)
-    job_apply_link = models.URLField()
-    job_description = models.TextField()
-    job_is_remote = models.BooleanField(default=False, null=True)
-    job_posted_at_timestamp = models.BigIntegerField(blank=True, null=True)
+    job_apply_link = models.URLField(blank=True, null=True)
+    job_is_remote = models.BooleanField(default=False, null=True, blank=True)
     job_posted_at_datetime_utc = models.DateTimeField(blank=True, null=True)
-    job_location = models.CharField(max_length=255, blank=True, null=True)
-    job_city = models.CharField(max_length=100, blank=True, null=True)
-    job_state = models.CharField(max_length=100, blank=True, null=True)
-    job_country = models.CharField(max_length=10, blank=True, null=True)
     job_benefits = models.JSONField(blank=True, null=True)
     job_salary_string = models.CharField(max_length=100, blank=True, null=True)
     job_min_salary = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
@@ -87,22 +62,45 @@ class ExternalJob(models.Model):
     required_technologies = models.JSONField(blank=True, null=True)
     employer_reviews = models.JSONField(blank=True, null=True)
     
-    # Metadata
-    fetched_at = models.DateTimeField(auto_now_add=True)
+    # Sync column
+    last_synced_at = models.DateTimeField(blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        db_table = 'external_jobs'
-        ordering = ['-job_posted_at_datetime_utc', '-fetched_at']
+        db_table = 'jobs'
+        ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['job_id']),
-            models.Index(fields=['job_posted_at_datetime_utc']),
-            models.Index(fields=['job_location']),
-            models.Index(fields=['employer_name']),
+            models.Index(fields=['external_job_id']),
+            models.Index(fields=['company']),
+            models.Index(fields=['is_external']),
         ]
     
     def __str__(self):
-        return f"{self.job_title} at {self.employer_name}"
+        return f"{self.title} at {self.company}"
+    
+    @property
+    def skills_list(self):
+        """Return skills as a list"""
+        if not self.skills_required:
+            return []
+        return [skill.strip() for skill in self.skills_required.split(',')]
+
+
+class CompanySync(models.Model):
+    """
+    Model to track when a company's external openings were last fetched/synced
+    """
+    company = models.CharField(max_length=100, unique=True, db_index=True)
+    last_synced_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'company_syncs'
+        ordering = ['-last_synced_at']
+
+    def __str__(self):
+        return f"{self.company} synced at {self.last_synced_at}"
 
 
 class Application(models.Model):

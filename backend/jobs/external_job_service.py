@@ -1,12 +1,12 @@
 import requests
 from django.conf import settings
 from datetime import datetime, timedelta
-from .models import ExternalJob
+from .models import Job
 
 
 class ExternalJobService:
     """
-    Service for fetching and managing external jobs from JSearch API
+    Service for fetching and managing external jobs from JSearch API using the unified Job model
     """
     BASE_URL = "https://jsearch.p.rapidapi.com"
     
@@ -24,17 +24,6 @@ class ExternalJobService:
                    employment_types=None, job_requirements=None, radius=None):
         """
         Search for jobs using JSearch API
-        
-        Args:
-            query: Search query (e.g., "developer jobs in chicago")
-            num_pages: Number of pages to fetch (1-20)
-            country: Country code (default 'in' for India)
-            location: Location string
-            date_posted: all, today, 3days, week, month
-            work_from_home: Boolean
-            employment_types: Comma-separated (FULLTIME, CONTRACTOR, PARTTIME, INTERN)
-            job_requirements: Comma-separated requirements
-            radius: Search radius in km
         """
         url = f"{ExternalJobService.BASE_URL}/search-v2"
         
@@ -63,7 +52,8 @@ class ExternalJobService:
             
             if data.get('status') == 'OK':
                 jobs_data = data.get('data', {}).get('jobs', [])
-                return ExternalJobService.save_jobs(jobs_data), data.get('data', {}).get('cursor')
+                # Pass query/company name so we can save it correctly
+                return ExternalJobService.save_jobs(jobs_data, company_name=query.replace(' jobs', '')), data.get('data', {}).get('cursor')
             return [], None
         except requests.exceptions.RequestException as e:
             print(f"Error fetching jobs: {e}")
@@ -73,10 +63,6 @@ class ExternalJobService:
     def get_job_details(job_ids, country='in'):
         """
         Get detailed information for specific job(s)
-        
-        Args:
-            job_ids: Single job_id or comma-separated job_ids (up to 20)
-            country: Country code
         """
         url = f"{ExternalJobService.BASE_URL}/job-details"
         
@@ -99,11 +85,12 @@ class ExternalJobService:
             return []
     
     @staticmethod
-    def save_jobs(jobs_data):
+    def save_jobs(jobs_data, company_name=None):
         """
-        Save or update jobs in the database
+        Save or update jobs in the unified Job table
         """
         saved_jobs = []
+        from django.utils import timezone
         
         for job_data in jobs_data:
             job_id = job_data.get('job_id')
@@ -120,23 +107,48 @@ class ExternalJobService:
                 except:
                     pass
             
+            # Map job type
+            emp_type = job_data.get('job_employment_type')
+            mapped_type = 'full_time'
+            if emp_type:
+                emp_type_upper = emp_type.upper()
+                if 'FULL' in emp_type_upper:
+                    mapped_type = 'full_time'
+                elif 'PART' in emp_type_upper:
+                    mapped_type = 'part_time'
+                elif 'CONTRACT' in emp_type_upper:
+                    mapped_type = 'contract'
+                elif 'INTERN' in emp_type_upper:
+                    mapped_type = 'internship'
+            
+            # Comma-separated skills
+            techs = job_data.get('required_technologies') or []
+            skills_req = ", ".join(techs) if techs else "Software Development"
+            
+            # Resolve company name
+            resolved_company = company_name or job_data.get('employer_name') or 'External Company'
+            
             # Prepare job fields
             job_fields = {
-                'job_title': (job_data.get('job_title') or '')[:500],
-                'employer_name': (job_data.get('employer_name') or '')[:255],
+                'title': (job_data.get('job_title') or '')[:200],
+                'description': job_data.get('job_description') or '',
+                'company': resolved_company[:100],
+                'location': (job_data.get('job_location') or job_data.get('job_city') or 'Remote')[:100],
+                'job_type': mapped_type,
+                'experience_required': 'Not specified',
+                'salary_range': (job_data.get('job_salary_string') or '')[:100],
+                'skills_required': skills_req,
+                'status': 'open',
+                'posted_by': None,
+                
+                # External specific
+                'is_external': True,
                 'employer_logo': job_data.get('employer_logo'),
                 'employer_website': job_data.get('employer_website'),
                 'job_publisher': (job_data.get('job_publisher') or '')[:255],
-                'job_employment_type': (job_data.get('job_employment_type') or '')[:50],
                 'job_apply_link': job_data.get('job_apply_link') or '',
-                'job_description': job_data.get('job_description') or '',
-                'job_is_remote': job_data.get('job_is_remote'),
-                'job_posted_at_timestamp': job_data.get('job_posted_at_timestamp'),
+                'job_is_remote': job_data.get('job_is_remote', False),
                 'job_posted_at_datetime_utc': posted_at_datetime,
-                'job_location': (job_data.get('job_location') or '')[:255],
-                'job_city': (job_data.get('job_city') or '')[:100],
-                'job_state': (job_data.get('job_state') or '')[:100],
-                'job_country': (job_data.get('job_country') or '')[:10],
                 'job_benefits': job_data.get('job_benefits'),
                 'job_salary_string': (job_data.get('job_salary_string') or '')[:100],
                 'job_min_salary': job_data.get('job_min_salary'),
@@ -145,11 +157,12 @@ class ExternalJobService:
                 'job_highlights': job_data.get('job_highlights'),
                 'required_technologies': job_data.get('required_technologies'),
                 'employer_reviews': job_data.get('employer_reviews'),
+                'last_synced_at': timezone.now()
             }
             
-            # Update or create
-            job, created = ExternalJob.objects.update_or_create(
-                job_id=job_id,
+            # Update or create by external_job_id
+            job, created = Job.objects.update_or_create(
+                external_job_id=job_id,
                 defaults=job_fields
             )
             saved_jobs.append(job)
@@ -159,15 +172,11 @@ class ExternalJobService:
     @staticmethod
     def get_cached_jobs(days=7, **filters):
         """
-        Get jobs from database cache
-        
-        Args:
-            days: Get jobs from last N days (default 7)
-            **filters: Additional filters (location, employment_type, etc.)
+        Get jobs from the unified Job database table
         """
         from django.utils import timezone
         
-        queryset = ExternalJob.objects.all()
+        queryset = Job.objects.filter(is_external=True)
         
         # Filter by date
         if days:
@@ -176,10 +185,18 @@ class ExternalJobService:
         
         # Apply additional filters
         if 'location' in filters and filters['location']:
-            queryset = queryset.filter(job_location__icontains=filters['location'])
+            queryset = queryset.filter(location__icontains=filters['location'])
         
         if 'employment_type' in filters and filters['employment_type']:
-            queryset = queryset.filter(job_employment_type__icontains=filters['employment_type'])
+            emp_type = filters['employment_type'].upper()
+            if 'FULL' in emp_type:
+                queryset = queryset.filter(job_type='full_time')
+            elif 'PART' in emp_type:
+                queryset = queryset.filter(job_type='part_time')
+            elif 'CONTRACT' in emp_type:
+                queryset = queryset.filter(job_type='contract')
+            elif 'INTERN' in emp_type:
+                queryset = queryset.filter(job_type='internship')
         
         if 'remote' in filters and filters['remote']:
             queryset = queryset.filter(job_is_remote=True)
@@ -188,9 +205,9 @@ class ExternalJobService:
             from django.db.models import Q
             search = filters['search']
             queryset = queryset.filter(
-                Q(job_title__icontains=search) |
-                Q(employer_name__icontains=search) |
-                Q(job_description__icontains=search)
+                Q(title__icontains=search) |
+                Q(company__icontains=search) |
+                Q(description__icontains=search)
             )
         
         return queryset

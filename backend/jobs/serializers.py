@@ -1,15 +1,35 @@
 from rest_framework import serializers
-from .models import Job, Application, Notification, ExternalJob
+from .models import Job, Application, Notification
 from accounts.serializers import UserSerializer
 
 
 class ExternalJobSerializer(serializers.ModelSerializer):
     """
-    Serializer for ExternalJob model
+    Serializer for external job details from the unified Job model
     """
+    # Backward compatibility aliases for JSearch UI elements
+    job_title = serializers.CharField(source='title', read_only=True)
+    employer_name = serializers.CharField(source='company', read_only=True)
+    job_location = serializers.CharField(source='location', read_only=True)
+    job_employment_type = serializers.CharField(source='job_type', read_only=True)
+
     class Meta:
-        model = ExternalJob
-        fields = '__all__'
+        model = Job
+        fields = (
+            'id', 'title', 'description', 'company', 'location',
+            'job_type', 'experience_required', 'salary_range',
+            'skills_required', 'skills_list', 'status',
+            'posted_by', 'posted_by_details', 'applications_count',
+            'is_external', 'external_job_id', 'employer_logo',
+            'employer_website', 'job_publisher', 'job_apply_link',
+            'job_is_remote', 'job_posted_at_datetime_utc',
+            'job_benefits', 'job_salary_string', 'job_min_salary',
+            'job_max_salary', 'job_salary_period', 'job_highlights',
+            'required_technologies', 'employer_reviews', 'last_synced_at',
+            'created_at', 'updated_at',
+            # Aliases
+            'job_title', 'employer_name', 'job_location', 'job_employment_type'
+        )
 
 
 class JobSerializer(serializers.ModelSerializer):
@@ -20,6 +40,12 @@ class JobSerializer(serializers.ModelSerializer):
     skills_list = serializers.ReadOnlyField()
     applications_count = serializers.SerializerMethodField()
     
+    # Backward compatibility aliases for JSearch UI elements
+    job_title = serializers.CharField(source='title', read_only=True)
+    employer_name = serializers.CharField(source='company', read_only=True)
+    job_location = serializers.CharField(source='location', read_only=True)
+    job_employment_type = serializers.CharField(source='job_type', read_only=True)
+    
     class Meta:
         model = Job
         fields = (
@@ -27,7 +53,15 @@ class JobSerializer(serializers.ModelSerializer):
             'job_type', 'experience_required', 'salary_range',
             'skills_required', 'skills_list', 'status',
             'posted_by', 'posted_by_details', 'applications_count',
-            'created_at', 'updated_at'
+            'is_external', 'external_job_id', 'employer_logo',
+            'employer_website', 'job_publisher', 'job_apply_link',
+            'job_is_remote', 'job_posted_at_datetime_utc',
+            'job_benefits', 'job_salary_string', 'job_min_salary',
+            'job_max_salary', 'job_salary_period', 'job_highlights',
+            'required_technologies', 'employer_reviews', 'last_synced_at',
+            'created_at', 'updated_at',
+            # Aliases
+            'job_title', 'employer_name', 'job_location', 'job_employment_type'
         )
         read_only_fields = ('id', 'posted_by', 'created_at', 'updated_at')
     
@@ -51,16 +85,28 @@ class JobListSerializer(serializers.ModelSerializer):
     """
     posted_by_name = serializers.CharField(
         source='posted_by.get_full_name',
+        default='',
         read_only=True
     )
     skills_list = serializers.ReadOnlyField()
+    
+    # Backward compatibility aliases for JSearch UI elements
+    job_title = serializers.CharField(source='title', read_only=True)
+    employer_name = serializers.CharField(source='company', read_only=True)
+    job_location = serializers.CharField(source='location', read_only=True)
+    job_employment_type = serializers.CharField(source='job_type', read_only=True)
     
     class Meta:
         model = Job
         fields = (
             'id', 'title', 'company', 'location', 'job_type',
             'experience_required', 'salary_range', 'skills_list',
-            'status', 'posted_by_name', 'created_at'
+            'status', 'posted_by_name', 'created_at',
+            'is_external', 'employer_logo', 'job_apply_link',
+            'job_is_remote', 'job_posted_at_datetime_utc',
+            'job_publisher', 'last_synced_at',
+            # Aliases
+            'job_title', 'employer_name', 'job_location', 'job_employment_type'
         )
 
 
