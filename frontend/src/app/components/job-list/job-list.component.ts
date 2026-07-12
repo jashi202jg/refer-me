@@ -24,6 +24,12 @@ export class JobListComponent implements OnInit {
   filterStatus = '';
   showMyJobs = false;
 
+  // Pagination State
+  currentPage = 1;
+  pageSize = 10;
+  totalJobs = 0;
+  totalPages = 0;
+
   // External Jobs State
   externalJobs: ExternalJob[] = [];
   isLoadingExternal = false;
@@ -57,12 +63,15 @@ export class JobListComponent implements OnInit {
       if (params['my_jobs'] === 'true' || params['my_jobs'] === true) {
         this.showMyJobs = true;
         this.searchTerm = '';
+        this.currentPage = 1;
         this.loadJobs(true);
       } else if (params['external'] === 'true' && params['company']) {
         this.showMyJobs = false;
         this.searchTerm = params['company'];
+        this.currentPage = 1;
         this.loadJobs(true);
       } else {
+        this.currentPage = 1;
         this.loadJobs(true);
       }
     });
@@ -73,7 +82,9 @@ export class JobListComponent implements OnInit {
       this.isLoading = true;
     }
     
-    const filters: any = {};
+    const filters: any = {
+      page: this.currentPage
+    };
     if (this.searchTerm) filters.search = this.searchTerm;
     if (this.filterJobType) filters.job_type = this.filterJobType;
     if (this.filterStatus) filters.status = this.filterStatus;
@@ -82,6 +93,8 @@ export class JobListComponent implements OnInit {
     this.jobService.getJobs(filters).subscribe({
       next: (response) => {
         this.jobs = response.results;
+        this.totalJobs = response.count;
+        this.totalPages = Math.ceil(this.totalJobs / this.pageSize);
         this.isLoading = false;
         if (this.authService.isCandidate) {
           this.notificationService.checkNewJobs(this.jobs);
@@ -92,6 +105,27 @@ export class JobListComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadJobs();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadJobs();
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.loadJobs();
+    }
   }
 
   loadExternalJobs() {
@@ -156,6 +190,7 @@ export class JobListComponent implements OnInit {
   }
 
   onSearch() {
+    this.currentPage = 1;
     if (this.activeTab === 'internal') {
       this.loadJobs();
     } else {
@@ -164,6 +199,7 @@ export class JobListComponent implements OnInit {
   }
 
   onFilterChange() {
+    this.currentPage = 1;
     if (this.activeTab === 'internal') {
       this.loadJobs();
     } else {
@@ -191,6 +227,7 @@ export class JobListComponent implements OnInit {
     this.filterJobType = '';
     this.filterStatus = '';
     this.showMyJobs = false;
+    this.currentPage = 1;
     this.loadJobs();
   }
 

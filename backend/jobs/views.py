@@ -74,7 +74,11 @@ class JobListCreateView(generics.ListCreateAPIView):
             )
 
     def get_queryset(self):
-        queryset = Job.objects.select_related('posted_by').all()
+        from django.db.models.functions import Coalesce
+        queryset = Job.objects.select_related('posted_by').annotate(
+            actual_posted_date=Coalesce('job_posted_at_datetime_utc', 'created_at')
+        ).order_by('-actual_posted_date')
+        
         user = self.request.user
         
         # Filter by status
@@ -104,7 +108,7 @@ class JobListCreateView(generics.ListCreateAPIView):
         # Role-based query logic
         if user.is_referrer:
             user_jobs = self.request.query_params.get('my_jobs', None)
-            if user_jobs:
+            if user_jobs == 'true':
                 # Dashboard: only user-posted jobs from DB (internal)
                 queryset = queryset.filter(posted_by=user, source='INTERNAL')
             else:
@@ -118,15 +122,10 @@ class JobListCreateView(generics.ListCreateAPIView):
                     # Fallback to user posted if company not set
                     queryset = queryset.filter(posted_by=user)
         else:
-            # Candidates: default to only open internal jobs
-            if is_external_param is None:
-                queryset = queryset.filter(source='INTERNAL', status='open')
-            else:
-                if is_external_param.lower() == 'true':
-                    # Allow searching external cached jobs
-                    pass
-                else:
-                    queryset = queryset.filter(source='INTERNAL', status='open')
+            # Candidates: default to all open/active jobs (both internal and external)
+            queryset = queryset.filter(status='open', is_active=True)
+            if is_external_param is not None:
+                queryset = queryset.filter(source='EXTERNAL' if is_external_param.lower() == 'true' else 'INTERNAL')
         
         return queryset
     
@@ -212,14 +211,34 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
         # Explicitly load job with posted_by
         job = Job.objects.select_related('posted_by').get(pk=application.job_id)
         candidate_name = self.request.user.get_full_name() or self.request.user.username or self.request.user.email
-        Notification.objects.create(
-            recipient=job.posted_by,
-            actor=self.request.user,
-            title='New Application Received',
-            message=f"{candidate_name} applied for {job.title}",
-            notification_type='new_application',
-            link='/applications'
-        )
+        
+        if job.source == 'EXTERNAL':
+            # Notify all referrers of the corresponding company
+            referrers = User.objects.filter(user_type='referrer', company__iexact=job.company_name)
+            notifications = [
+                Notification(
+                    recipient=referrer,
+                    actor=self.request.user,
+                    title='New External Referral Requested',
+                    message=f"{candidate_name} requested a referral for {job.title} at {job.company_name}",
+                    notification_type='new_application',
+                    link='/applications'
+                )
+                for referrer in referrers
+            ]
+            if notifications:
+                Notification.objects.bulk_create(notifications)
+        else:
+            # Internal job: notify the specific referrer who posted it
+            if job.posted_by:
+                Notification.objects.create(
+                    recipient=job.posted_by,
+                    actor=self.request.user,
+                    title='New Application Received',
+                    message=f"{candidate_name} applied for {job.title}",
+                    notification_type='new_application',
+                    link='/applications'
+                )
 
 
 class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):

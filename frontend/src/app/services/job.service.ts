@@ -21,6 +21,7 @@ export class JobService {
     job_type?: string;
     search?: string;
     my_jobs?: boolean;
+    page?: number;
   }): Observable<{ count: number; results: Job[] }> {
     let params = new HttpParams();
     
@@ -29,6 +30,7 @@ export class JobService {
       if (filters.job_type) params = params.set('job_type', filters.job_type);
       if (filters.search) params = params.set('search', filters.search);
       if (filters.my_jobs) params = params.set('my_jobs', 'true');
+      if (filters.page) params = params.set('page', filters.page.toString());
     }
 
     return this.http.get<{ count: number; results: Job[] }>(this.apiUrl + '/', { params });

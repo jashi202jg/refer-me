@@ -52,9 +52,6 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboardData(true);
-    if (this.authService.isCandidate) {
-      this.loadExternalJobs();
-    }
   }
 
   loadDashboardData(showLoadingIndicator: boolean = true) {

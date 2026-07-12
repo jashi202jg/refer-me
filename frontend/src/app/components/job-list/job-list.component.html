@@ -119,4 +119,21 @@
       <button (click)="clearFilters()" class="btn-primary">Clear All Filters</button>
     </div>
   </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-container" *ngIf="!isLoading && totalJobs > pageSize">
+    <button (click)="prevPage()" [disabled]="currentPage === 1" class="btn-pagination">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="pagination-icon">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Previous
+    </button>
+    <span class="pagination-info">Page {{ currentPage }} of {{ totalPages }} ({{ totalJobs }} jobs)</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="btn-pagination">
+      Next
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="pagination-icon">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
 </div>
