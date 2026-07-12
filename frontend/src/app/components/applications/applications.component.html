@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 
 <div class="applications-container">
-  <div class="applications-header">
+  <div class="applications-header" *ngIf="!selectedApplication">
     <h1>{{ authService.isCandidate ? 'My Referral Requests' : 'Received Referral Requests' }}</h1>
     <p class="subtitle" *ngIf="authService.isCandidate">Track the status of all your referral requests</p>
     <p class="subtitle" *ngIf="authService.isReferrer">Manage referral requests for your jobs</p>
@@ -12,38 +12,47 @@
     <p>Loading applications...</p>
   </div>
 
-  <div class="applications-list" *ngIf="!isLoading">
-    <div class="application-card" *ngFor="let application of applications">
+  <!-- Detail view mode -->
+  <div class="application-detail-view" *ngIf="!isLoading && selectedApplication">
+    <div class="back-nav">
+      <button (click)="clearSelection()" class="btn-back-nav">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back to List
+      </button>
+    </div>
 
+    <div class="application-card">
       <!-- Card Header -->
       <div class="application-header">
         <div class="application-header-left">
-          <h2 *ngIf="authService.isCandidate">{{ application.job_details?.title }}</h2>
+          <h2 *ngIf="authService.isCandidate">{{ selectedApplication.job_details?.title }}</h2>
           <h2 *ngIf="authService.isReferrer">
-            {{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}
+            {{ selectedApplication.candidate_details?.first_name }} {{ selectedApplication.candidate_details?.last_name }}
           </h2>
           <p class="company" *ngIf="authService.isCandidate">
             <span class="meta-chip">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chip-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="chip-icon">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
               </svg>
-              {{ application.job_details?.company }}
+              {{ selectedApplication.job_details?.company }}
             </span>
             <span class="meta-chip">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chip-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="chip-icon">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
-              {{ application.job_details?.location }}
+              {{ selectedApplication.job_details?.location }}
             </span>
           </p>
           <p class="company" *ngIf="authService.isReferrer">
-            Applied for: {{ application.job_details?.title }}
+            Applied for: {{ selectedApplication.job_details?.title }}
           </p>
         </div>
-        <span class="badge" [ngClass]="getStatusClass(application.status)">
-          {{ application.status | titlecase }}
+        <span class="badge" [ngClass]="getStatusClass(selectedApplication.status)">
+          {{ selectedApplication.status | titlecase }}
         </span>
       </div>
 
@@ -59,7 +68,7 @@
             </svg>
             Applied
           </span>
-          <span class="detail-value">{{ application.applied_at | date:'MMM d, y' }}</span>
+          <span class="detail-value">{{ selectedApplication.applied_at | date:'MMM d, y' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">
@@ -69,9 +78,9 @@
             </svg>
             Last Updated
           </span>
-          <span class="detail-value">{{ application.updated_at | date:'MMM d, y' }}</span>
+          <span class="detail-value">{{ selectedApplication.updated_at | date:'MMM d, y' }}</span>
         </div>
-        <div class="detail-row" *ngIf="authService.isReferrer && application.candidate_details?.email">
+        <div class="detail-row" *ngIf="authService.isReferrer && selectedApplication.candidate_details?.email">
           <span class="detail-label">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="detail-icon">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -79,43 +88,43 @@
             </svg>
             Email
           </span>
-          <span class="detail-value">{{ application.candidate_details?.email }}</span>
+          <span class="detail-value">{{ selectedApplication.candidate_details?.email }}</span>
         </div>
       </div>
 
       <!-- Cover Letter -->
-      <div class="application-content" *ngIf="application.cover_letter">
+      <div class="application-content" *ngIf="selectedApplication.cover_letter">
         <h3>Message to Referrer</h3>
-        <p class="cover-letter">{{ application.cover_letter }}</p>
+        <p class="cover-letter">{{ selectedApplication.cover_letter }}</p>
       </div>
 
       <!-- Resume -->
-      <div class="application-content" *ngIf="application.resume_url || application.resume_blob">
+      <div class="application-content" *ngIf="selectedApplication.resume_url || selectedApplication.resume_blob">
         <h3>Resume</h3>
-        <a [href]="application.resume_blob || application.resume_url"
-           [download]="application.resume_filename || 'Resume'"
+        <a [href]="selectedApplication.resume_blob || selectedApplication.resume_url"
+           [download]="selectedApplication.resume_filename || 'Resume'"
            target="_blank"
            class="resume-link">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="link-icon">
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
           </svg>
-          View Resume {{ application.resume_filename ? '(' + application.resume_filename + ')' : '' }}
+          View Resume {{ selectedApplication.resume_filename ? '(' + selectedApplication.resume_filename + ')' : '' }}
         </a>
       </div>
 
       <!-- Professional Profiles -->
-      <div class="application-content" *ngIf="application.linkedin_url || application.github_url || application.portfolio_url">
+      <div class="application-content" *ngIf="selectedApplication.linkedin_url || selectedApplication.github_url || selectedApplication.portfolio_url">
         <h3>Professional Profiles</h3>
         <div class="profile-links">
-          <a *ngIf="application.linkedin_url" [href]="application.linkedin_url" target="_blank" class="profile-link profile-link--linkedin">
+          <a *ngIf="selectedApplication.linkedin_url" [href]="selectedApplication.linkedin_url" target="_blank" class="profile-link profile-link--linkedin">
             <svg viewBox="0 0 24 24" fill="currentColor" class="link-icon"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
             LinkedIn
           </a>
-          <a *ngIf="application.github_url" [href]="application.github_url" target="_blank" class="profile-link profile-link--github">
+          <a *ngIf="selectedApplication.github_url" [href]="selectedApplication.github_url" target="_blank" class="profile-link profile-link--github">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="link-icon"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
             GitHub
           </a>
-          <a *ngIf="application.portfolio_url" [href]="application.portfolio_url" target="_blank" class="profile-link profile-link--portfolio">
+          <a *ngIf="selectedApplication.portfolio_url" [href]="selectedApplication.portfolio_url" target="_blank" class="profile-link profile-link--portfolio">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="link-icon"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
             Portfolio
           </a>
@@ -123,39 +132,39 @@
       </div>
 
       <!-- Internal Notes (Referrer) -->
-      <div class="application-content" *ngIf="application.notes && authService.isReferrer">
+      <div class="application-content" *ngIf="selectedApplication.notes && authService.isReferrer">
         <h3>Internal Notes</h3>
-        <p>{{ application.notes }}</p>
+        <p>{{ selectedApplication.notes }}</p>
       </div>
 
       <!-- Actions for Referrer -->
       <div class="actions" *ngIf="authService.isReferrer">
-        <a [routerLink]="['/jobs', application.job]" class="btn-view" style="margin-right: auto;">View Job</a>
+        <a [routerLink]="['/jobs', selectedApplication.job]" class="btn-view" style="margin-right: auto;">View Job</a>
         <button
-          (click)="updateStatus(application.id, 'reviewing')"
+          (click)="updateStatus(selectedApplication.id, 'reviewing')"
           class="btn-action btn-reviewing"
-          [disabled]="application.status === 'reviewing'"
+          [disabled]="selectedApplication.status === 'reviewing'"
         >
           Mark Reviewing
         </button>
         <button
-          (click)="updateStatus(application.id, 'shortlisted')"
+          (click)="updateStatus(selectedApplication.id, 'shortlisted')"
           class="btn-action btn-shortlisted"
-          [disabled]="application.status === 'shortlisted'"
+          [disabled]="selectedApplication.status === 'shortlisted'"
         >
           Shortlist
         </button>
         <button
-          (click)="updateStatus(application.id, 'referred')"
+          (click)="updateStatus(selectedApplication.id, 'referred')"
           class="btn-action btn-referred"
-          [disabled]="application.status === 'referred'"
+          [disabled]="selectedApplication.status === 'referred'"
         >
           Mark Referred
         </button>
         <button
-          (click)="updateStatus(application.id, 'rejected')"
+          (click)="updateStatus(selectedApplication.id, 'rejected')"
           class="btn-action btn-rejected"
-          [disabled]="application.status === 'rejected'"
+          [disabled]="selectedApplication.status === 'rejected'"
         >
           Reject
         </button>
@@ -163,16 +172,72 @@
 
       <!-- Actions for Candidate -->
       <div class="actions" *ngIf="authService.isCandidate">
-        <a [routerLink]="['/jobs', application.job]" class="btn-view">View Job</a>
+        <a [routerLink]="['/jobs', selectedApplication.job]" class="btn-view">View Job</a>
         <button
-          (click)="deleteApplication(application.id)"
+          (click)="deleteApplication(selectedApplication.id)"
           class="btn-withdraw"
-          *ngIf="application.status === 'pending'"
+          *ngIf="selectedApplication.status === 'pending'"
         >
           Withdraw Request
         </button>
       </div>
+    </div>
+  </div>
 
+  <!-- List view mode -->
+  <div class="applications-list" *ngIf="!isLoading && !selectedApplication">
+    <div class="applications-grid" *ngIf="applications.length > 0">
+      <div class="application-list-card" *ngFor="let application of applications">
+        <div class="job-card-header">
+          <h2 *ngIf="authService.isCandidate" style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; line-height: 1.3;">
+            {{ application.job_details?.title }}
+          </h2>
+          <h2 *ngIf="authService.isReferrer" style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; line-height: 1.3;">
+            {{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}
+          </h2>
+          <span class="badge" [ngClass]="getStatusClass(application.status)">
+            {{ application.status | titlecase }}
+          </span>
+        </div>
+
+        <p class="company" *ngIf="authService.isCandidate" style="margin-top: 6px;">
+          <span class="meta-chip">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chip-icon">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            {{ application.job_details?.company }}
+          </span>
+        </p>
+        <p class="company" *ngIf="authService.isReferrer" style="margin-top: 6px;">
+          Applied for: {{ application.job_details?.title }}
+        </p>
+
+        <div class="job-meta-row" style="margin-top: 12px; margin-bottom: 14px;">
+          <span class="meta-item" *ngIf="authService.isCandidate && application.job_details?.location">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            {{ application.job_details?.location }}
+          </span>
+          <span class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="meta-icon">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Applied: {{ application.applied_at | date:'MMM d, y' }}
+          </span>
+        </div>
+
+        <div class="job-card-footer" style="margin-top: auto;">
+          <button (click)="viewDetails(application)" class="btn-view" style="width: 100%; border: none; cursor: pointer;">
+            View Details
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Empty State -->

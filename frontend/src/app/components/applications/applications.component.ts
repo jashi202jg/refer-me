@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ApplicationService } from '../../services/application.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
@@ -17,17 +17,28 @@ import { NavbarComponent } from '../navbar/navbar.component';
 })
 export class ApplicationsComponent implements OnInit {
   applications: Application[] = [];
+  selectedApplication: Application | null = null;
   isLoading = true;
 
   constructor(
     private applicationService: ApplicationService,
     public authService: AuthService,
     private modalService: ModalService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.loadApplications(true);
+    this.route.queryParams.subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        this.selectApplicationById(+id);
+      } else {
+        this.selectedApplication = null;
+      }
+    });
   }
 
   loadApplications(showLoadingIndicator: boolean = true) {
@@ -38,6 +49,12 @@ export class ApplicationsComponent implements OnInit {
       next: (response) => {
         this.applications = response.results;
         this.isLoading = false;
+        
+        const id = this.route.snapshot.queryParams['id'];
+        if (id) {
+          this.selectApplicationById(+id);
+        }
+        
         if (this.authService.isReferrer) {
           this.notificationService.checkNewApplications(this.applications);
         }
@@ -53,6 +70,9 @@ export class ApplicationsComponent implements OnInit {
     this.applicationService.updateApplicationStatus(applicationId, status).subscribe({
       next: () => {
         this.loadApplications();
+        if (this.selectedApplication && this.selectedApplication.id === applicationId) {
+          this.selectedApplication.status = status as any;
+        }
       },
       error: (error) => {
         this.modalService.alert('Error', 'Error updating status: ' + (error.error?.message || 'Unknown error'));
@@ -69,6 +89,9 @@ export class ApplicationsComponent implements OnInit {
     if (confirmed) {
       this.applicationService.deleteApplication(applicationId).subscribe({
         next: () => {
+          if (this.selectedApplication && this.selectedApplication.id === applicationId) {
+            this.clearSelection();
+          }
           this.loadApplications();
         },
         error: (error) => {
@@ -76,6 +99,29 @@ export class ApplicationsComponent implements OnInit {
         }
       });
     }
+  }
+
+  selectApplicationById(id: number) {
+    if (this.applications.length > 0) {
+      const found = this.applications.find(app => app.id === id);
+      this.selectedApplication = found || null;
+    }
+  }
+
+  viewDetails(application: Application) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { id: application.id },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  clearSelection() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { id: null },
+      queryParamsHandling: 'merge'
+    });
   }
 
   getStatusClass(status: string): string {

@@ -40,7 +40,7 @@
           <a routerLink="/applications" class="btn-link">View All</a>
         </div>
         <div class="section-body">
-          <div class="application-card clickable-card" *ngFor="let application of applications" routerLink="/applications">
+          <div class="application-card clickable-card" *ngFor="let application of applications" [routerLink]="['/applications']" [queryParams]="{ id: application.id }">
             <div class="card-text">
               <h4>{{ application.job_details?.title }}</h4>
               <p class="company">{{ application.job_details?.company }}</p>
@@ -195,7 +195,7 @@
           <a routerLink="/applications" class="btn-link">View All</a>
         </div>
         <div class="section-body">
-          <div class="application-card clickable-card" *ngFor="let application of applications" routerLink="/applications">
+          <div class="application-card clickable-card" *ngFor="let application of applications" [routerLink]="['/applications']" [queryParams]="{ id: application.id }">
             <div class="card-content">
               <h3>{{ application.candidate_details?.first_name }} {{ application.candidate_details?.last_name }}</h3>
               <p class="company">Applied for: {{ application.job_details?.title }}</p>
