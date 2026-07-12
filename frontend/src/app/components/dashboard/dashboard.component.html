@@ -32,15 +32,28 @@
         <div class="stat-number">{{ applications.length }}</div>
         <p class="stat-label">Applications Submitted</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon stat-icon--purple">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-          </svg>
+
+      <!-- My Applications Section -->
+      <div class="section" style="margin-bottom: 0;">
+        <div class="section-header" style="padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="font-size: 0.95rem; margin: 0; font-weight: 700; color: #0f172a;">My Applications</h2>
+          <a routerLink="/applications" class="btn-link" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 600;">View All</a>
         </div>
-        <div class="stat-number">{{ totalJobsCount }}</div>
-        <p class="stat-label">New Jobs Available</p>
+        <div class="section-body" style="padding: 12px 20px 16px; max-height: 180px; overflow-y: auto;">
+          <div class="application-card" *ngFor="let application of applications" style="padding: 10px; margin-bottom: 8px; background: #fafafa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9;">
+            <div style="flex: 1; min-width: 0; padding-right: 8px;">
+              <h4 style="margin: 0; font-size: 0.85rem; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ application.job_details?.title }}</h4>
+              <p class="company" style="margin: 2px 0 0; font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ application.job_details?.company }}</p>
+            </div>
+            <span class="badge" [ngClass]="getStatusClass(application.status)" style="font-size: 0.65rem; padding: 2px 6px; flex-shrink: 0; border-radius: 20px;">
+              {{ application.status | titlecase }}
+            </span>
+          </div>
+          <div *ngIf="applications.length === 0" class="empty-state" style="padding: 20px 0; text-align: center; color: #94a3b8;">
+            <p style="font-size: 0.8rem; margin: 0 0 10px;">You haven't requested any referrals yet.</p>
+            <a routerLink="/jobs" class="btn-primary" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 8px;">Browse Jobs</a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -71,8 +84,7 @@
               </span>
             </div>
             
-            <a [routerLink]="['/jobs', job.id]" class="btn-view" *ngIf="!job.is_external">View Details</a>
-            <a [href]="job.job_apply_link" target="_blank" rel="noopener noreferrer" class="btn-view" *ngIf="job.is_external">View Details</a>
+            <a [routerLink]="['/jobs', job.id]" class="btn-view">View Details</a>
           </div>
           
           <div *ngIf="recentJobs.length === 0" class="empty-state">
@@ -84,36 +96,6 @@
             </div>
             <p>No jobs available at the moment</p>
             <a routerLink="/jobs" class="btn-primary">Browse All Jobs</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- My Applications Section -->
-      <div class="section">
-        <div class="section-header">
-          <h2>My Applications</h2>
-          <a routerLink="/applications" class="btn-link">View All</a>
-        </div>
-        <div class="section-body">
-          <div class="application-card" *ngFor="let application of applications">
-            <h3>{{ application.job_details?.title }}</h3>
-            <p class="company">{{ application.job_details?.company }}</p>
-            <div class="application-meta">
-              <span>{{ application.applied_at | date:'MMM d, y' }}</span>
-              <span class="badge" [ngClass]="getStatusClass(application.status)">
-                {{ application.status | titlecase }}
-              </span>
-            </div>
-          </div>
-          <div *ngIf="applications.length === 0" class="empty-state">
-            <div class="empty-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-            </div>
-            <p>You haven't applied to any jobs yet</p>
-            <a routerLink="/jobs" class="btn-primary">Browse Jobs</a>
           </div>
         </div>
       </div>

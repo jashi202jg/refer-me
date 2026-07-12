@@ -122,7 +122,7 @@ export class JobDetailComponent implements OnInit {
         },
         error: (error) => {
           this.applicationSubmitting = false;
-          this.errorMessage = error.error?.message || error.error?.detail || 'Failed to submit application. You may have already applied.';
+          this.errorMessage = error.error?.message || error.error?.detail || 'Failed to submit referral request. You may have already requested a referral for this job.';
         }
       });
     }

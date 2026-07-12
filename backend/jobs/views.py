@@ -188,11 +188,18 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
                 candidate=user
             ).select_related('job', 'candidate')
         else:
-            # Referrers see applications to their jobs
+            # Referrers see applications to their jobs OR applications to external jobs matching their company
             job_id = self.request.query_params.get('job_id', None)
-            queryset = Application.objects.filter(
-                job__posted_by=user
-            ).select_related('job', 'candidate')
+            if user.company:
+                from django.db.models import Q
+                queryset = Application.objects.filter(
+                    Q(job__posted_by=user) |
+                    Q(job__source='EXTERNAL', job__company_name__iexact=user.company)
+                ).select_related('job', 'candidate')
+            else:
+                queryset = Application.objects.filter(
+                    job__posted_by=user
+                ).select_related('job', 'candidate')
             
             if job_id:
                 queryset = queryset.filter(job_id=job_id)
@@ -253,6 +260,12 @@ class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
         if user.is_candidate:
             return Application.objects.filter(candidate=user)
         else:
+            if user.company:
+                from django.db.models import Q
+                return Application.objects.filter(
+                    Q(job__posted_by=user) |
+                    Q(job__source='EXTERNAL', job__company_name__iexact=user.company)
+                )
             return Application.objects.filter(job__posted_by=user)
     
     def get_serializer_class(self):
@@ -280,14 +293,31 @@ class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
         job = instance.job
         candidate_name = self.request.user.get_full_name() or self.request.user.username
         instance.delete()
-        Notification.objects.create(
-            recipient=job.posted_by,
-            actor=self.request.user,
-            title='Application Withdrawn',
-            message=f"{candidate_name} withdrew their application for {job.title}.",
-            notification_type='application_withdrawn',
-            link='/applications'
-        )
+        if job.source == 'EXTERNAL':
+            referrers = User.objects.filter(user_type='referrer', company__iexact=job.company_name)
+            notifications = [
+                Notification(
+                    recipient=referrer,
+                    actor=self.request.user,
+                    title='Referral Request Withdrawn',
+                    message=f"{candidate_name} withdrew their referral request for {job.title} at {job.company_name}.",
+                    notification_type='application_withdrawn',
+                    link='/applications'
+                )
+                for referrer in referrers
+            ]
+            if notifications:
+                Notification.objects.bulk_create(notifications)
+        else:
+            if job.posted_by:
+                Notification.objects.create(
+                    recipient=job.posted_by,
+                    actor=self.request.user,
+                    title='Application Withdrawn',
+                    message=f"{candidate_name} withdrew their application for {job.title}.",
+                    notification_type='application_withdrawn',
+                    link='/applications'
+                )
 
 
 class NotificationListView(generics.ListAPIView):

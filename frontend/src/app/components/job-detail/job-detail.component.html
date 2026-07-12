@@ -136,7 +136,7 @@
 
     <!-- Alerts -->
     <div class="success-message" *ngIf="applicationSuccess">
-      Application submitted successfully! Redirecting...
+      Referral request submitted successfully! Redirecting...
     </div>
 
     <div class="error-message" *ngIf="errorMessage">
@@ -146,7 +146,7 @@
     <!-- Actions -->
     <div class="actions">
       <button *ngIf="canApply && !showApplicationForm" (click)="toggleApplicationForm()" class="btn-primary">
-        Apply for this Job
+        Request Referral
       </button>
 
       <div *ngIf="isOwner" class="owner-actions">
@@ -165,20 +165,20 @@
     <!-- Application Form -->
     <div class="application-form" *ngIf="showApplicationForm">
       <div class="application-form-inner">
-        <h2>Apply for this Position</h2>
+        <h2>Request Referral</h2>
         <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()">
           <div class="form-group">
-            <label for="cover_letter">Cover Letter *</label>
+            <label for="cover_letter">Message to the Referrer *</label>
             <textarea
               id="cover_letter"
               formControlName="cover_letter"
               rows="5"
-              placeholder="Tell us why you're a great fit for this role..."
+              placeholder="Write a message to the referrer..."
               class="form-control"
               [class.invalid]="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched"
             ></textarea>
             <div class="error" *ngIf="applicationForm.get('cover_letter')?.invalid && applicationForm.get('cover_letter')?.touched">
-              Cover letter is required
+              Message to the Referrer is required
             </div>
           </div>
 
@@ -245,7 +245,7 @@
 
           <div class="form-actions">
             <button type="submit" class="btn-primary" [disabled]="applicationSubmitting">
-              <span *ngIf="!applicationSubmitting">Submit Application</span>
+              <span *ngIf="!applicationSubmitting">Submit Request</span>
               <span *ngIf="applicationSubmitting">Submitting...</span>
             </button>
             <button type="button" (click)="toggleApplicationForm()" class="btn-secondary">Cancel</button>

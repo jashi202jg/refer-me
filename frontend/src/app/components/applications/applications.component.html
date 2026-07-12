@@ -2,9 +2,9 @@
 
 <div class="applications-container">
   <div class="applications-header">
-    <h1>{{ authService.isCandidate ? 'My Applications' : 'Received Applications' }}</h1>
-    <p class="subtitle" *ngIf="authService.isCandidate">Track the status of all your job applications</p>
-    <p class="subtitle" *ngIf="authService.isReferrer">Manage applications for your job postings</p>
+    <h1>{{ authService.isCandidate ? 'My Referral Requests' : 'Received Referral Requests' }}</h1>
+    <p class="subtitle" *ngIf="authService.isCandidate">Track the status of all your referral requests</p>
+    <p class="subtitle" *ngIf="authService.isReferrer">Manage referral requests for your jobs</p>
   </div>
 
   <div class="loading" *ngIf="isLoading">
@@ -85,7 +85,7 @@
 
       <!-- Cover Letter -->
       <div class="application-content" *ngIf="application.cover_letter">
-        <h3>Cover Letter</h3>
+        <h3>Message to Referrer</h3>
         <p class="cover-letter">{{ application.cover_letter }}</p>
       </div>
 
@@ -168,7 +168,7 @@
           class="btn-withdraw"
           *ngIf="application.status === 'pending'"
         >
-          Withdraw Application
+          Withdraw Request
         </button>
       </div>
 
@@ -182,9 +182,9 @@
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
       </div>
-      <h3>No applications found</h3>
-      <p *ngIf="authService.isCandidate">You haven't applied to any jobs yet</p>
-      <p *ngIf="authService.isReferrer">No one has applied to your jobs yet</p>
+      <h3>No referral requests found</h3>
+      <p *ngIf="authService.isCandidate">You haven't requested any referrals yet</p>
+      <p *ngIf="authService.isReferrer">No one has requested referrals for your jobs yet</p>
       <a routerLink="/jobs" class="btn-primary" *ngIf="authService.isCandidate">Browse Jobs</a>
       <a routerLink="/post-job" class="btn-primary" *ngIf="authService.isReferrer">Post a Job</a>
     </div>
