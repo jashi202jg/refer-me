@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subscription, timer } from 'rxjs';
 import { JobService } from '../../services/job.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
@@ -16,14 +15,13 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './job-list.component.html',
   styleUrls: ['./job-list.component.css']
 })
-export class JobListComponent implements OnInit, OnDestroy {
+export class JobListComponent implements OnInit {
   jobs: Job[] = [];
   isLoading = true;
   searchTerm = '';
   filterJobType = '';
   filterStatus = '';
   showMyJobs = false;
-  private pollSubscription: Subscription | null = null;
 
   constructor(
     private jobService: JobService,
@@ -33,16 +31,6 @@ export class JobListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadJobs(true);
-    // Poll every 10 seconds for new job postings
-    this.pollSubscription = timer(10000, 10000).subscribe(() => {
-      this.loadJobs(false);
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.pollSubscription) {
-      this.pollSubscription.unsubscribe();
-    }
   }
 
   loadJobs(showLoadingIndicator: boolean = true) {

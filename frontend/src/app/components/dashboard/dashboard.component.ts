@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subscription, timer } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { JobService } from '../../services/job.service';
 import { ApplicationService } from '../../services/application.service';
@@ -17,7 +16,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   recentJobs: Job[] = [];
   externalJobs: ExternalJob[] = [];
   applications: Application[] = [];
@@ -26,7 +25,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isLoadingExternal = false;
   isFetchingFromAPI = false;
   activeTab: 'internal' | 'external' = 'internal';
-  private pollSubscription: Subscription | null = null;
 
   // Filters for external jobs
   filters = {
@@ -54,40 +52,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadDashboardData(true);
     this.loadExternalJobs();
-    // Poll every 10 seconds based strictly on user type (1 API call per poll)
-    this.pollSubscription = timer(10000, 10000).subscribe(() => {
-      if (this.authService.isCandidate) {
-        this.pollCandidateJobs();
-      } else if (this.authService.isReferrer) {
-        this.pollReferrerApplications();
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.pollSubscription) {
-      this.pollSubscription.unsubscribe();
-    }
-  }
-
-  pollCandidateJobs() {
-    this.jobService.getJobs({ status: 'open' }).subscribe({
-      next: (response) => {
-        this.recentJobs = response.results.slice(0, 5);
-        this.notificationService.checkNewJobs(response.results);
-      },
-      error: (error) => console.error('Error polling jobs:', error)
-    });
-  }
-
-  pollReferrerApplications() {
-    this.applicationService.getApplications().subscribe({
-      next: (response) => {
-        this.applications = response.results.slice(0, 5);
-        this.notificationService.checkNewApplications(response.results);
-      },
-      error: (error) => console.error('Error polling applications:', error)
-    });
   }
 
   loadDashboardData(showLoadingIndicator: boolean = true) {

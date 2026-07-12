@@ -1,7 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subscription, timer } from 'rxjs';
 import { ApplicationService } from '../../services/application.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
@@ -16,10 +15,9 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './applications.component.html',
   styleUrls: ['./applications.component.css']
 })
-export class ApplicationsComponent implements OnInit, OnDestroy {
+export class ApplicationsComponent implements OnInit {
   applications: Application[] = [];
   isLoading = true;
-  private pollSubscription: Subscription | null = null;
 
   constructor(
     private applicationService: ApplicationService,
@@ -30,16 +28,6 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadApplications(true);
-    // Poll every 10 seconds for new submissions/status updates
-    this.pollSubscription = timer(10000, 10000).subscribe(() => {
-      this.loadApplications(false);
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.pollSubscription) {
-      this.pollSubscription.unsubscribe();
-    }
   }
 
   loadApplications(showLoadingIndicator: boolean = true) {
