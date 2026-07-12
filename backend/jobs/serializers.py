@@ -39,6 +39,7 @@ class JobSerializer(serializers.ModelSerializer):
     posted_by_details = UserSerializer(source='posted_by', read_only=True)
     skills_list = serializers.ReadOnlyField()
     applications_count = serializers.SerializerMethodField()
+    company = serializers.CharField(required=False, allow_blank=True)
     
     # Backward compatibility aliases for JSearch UI elements
     job_title = serializers.CharField(source='title', read_only=True)
@@ -72,10 +73,18 @@ class JobSerializer(serializers.ModelSerializer):
         # Ensure only referrers can create jobs
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
-            if not request.user.is_referrer:
+            user = request.user
+            if not user.is_referrer:
                 raise serializers.ValidationError(
                     "Only referrers can post jobs"
                 )
+            if not attrs.get('company'):
+                if user.company:
+                    attrs['company'] = user.company
+                else:
+                    raise serializers.ValidationError(
+                        {"company": "Your profile company is not set. Please update your profile first."}
+                    )
         return attrs
 
 

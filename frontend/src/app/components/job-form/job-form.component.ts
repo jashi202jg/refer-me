@@ -27,7 +27,7 @@ export class JobFormComponent implements OnInit {
   ) {
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
-      company: ['', Validators.required],
+      company: [''],
       location: ['', Validators.required],
       job_type: ['full_time', Validators.required],
       description: ['', [Validators.required, Validators.minLength(50)]],
