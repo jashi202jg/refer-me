@@ -56,6 +56,13 @@
   letter-spacing: -0.5px;
 }
 
+.brand-logo-img {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .brand-title .accent {
   color: #2563eb;
 }

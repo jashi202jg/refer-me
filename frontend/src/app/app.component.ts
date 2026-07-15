@@ -10,5 +10,5 @@ import { ModalComponent } from './components/modal/modal.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'ReferMe - Job Referral Portal';
+  title = 'Referiqo - Job Referral Portal';
 }

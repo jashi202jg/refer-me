@@ -75,10 +75,11 @@
   letter-spacing: -0.5px;
 }
 
-.logo-icon {
-  width: 24px;
-  height: 24px;
-  color: var(--accent-primary);
+.logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .logo-accent {
