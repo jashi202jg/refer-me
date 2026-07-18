@@ -441,6 +441,10 @@
     width: 100%;
     justify-content: center;
   }
+
+  .applications-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =============================================

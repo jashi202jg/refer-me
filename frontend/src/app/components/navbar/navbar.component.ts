@@ -20,6 +20,8 @@ export class NavbarComponent {
   showNotificationsDropdown = false;
   showUserMenu = false;
 
+  isMenuOpen = false;
+
   constructor(
     public authService: AuthService,
     public themeService: ThemeService,
@@ -42,14 +44,28 @@ export class NavbarComponent {
     this.themeService.toggleTheme();
   }
 
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+    if (this.isMenuOpen) {
+      this.showNotificationsDropdown = false;
+      this.showUserMenu = false;
+    }
+  }
+
   toggleNotifications() {
     this.showNotificationsDropdown = !this.showNotificationsDropdown;
-    if (this.showNotificationsDropdown) this.showUserMenu = false;
+    if (this.showNotificationsDropdown) {
+      this.showUserMenu = false;
+      this.isMenuOpen = false;
+    }
   }
 
   toggleUserMenu() {
     this.showUserMenu = !this.showUserMenu;
-    if (this.showUserMenu) this.showNotificationsDropdown = false;
+    if (this.showUserMenu) {
+      this.showNotificationsDropdown = false;
+      this.isMenuOpen = false;
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -57,12 +73,14 @@ export class NavbarComponent {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.showNotificationsDropdown = false;
       this.showUserMenu = false;
+      this.isMenuOpen = false;
     }
   }
 
   onNotificationClick(notification: NotificationItem) {
     this.notificationService.markAsRead(notification.id);
     this.showNotificationsDropdown = false;
+    this.isMenuOpen = false;
     if (notification.link) {
       this.router.navigateByUrl(notification.link);
     }
@@ -78,6 +96,7 @@ export class NavbarComponent {
 
   logout() {
     this.showUserMenu = false;
+    this.isMenuOpen = false;
     this.authService.logout();
   }
 }

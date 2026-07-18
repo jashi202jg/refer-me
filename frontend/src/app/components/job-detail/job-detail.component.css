@@ -600,6 +600,16 @@ textarea.form-control {
   }
 }
 
+@media (max-width: 480px) {
+  .job-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row-three {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* =============================================
    DARK THEME
    ============================================= */

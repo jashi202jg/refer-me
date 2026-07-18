@@ -106,6 +106,21 @@
         </svg>
       </button>
 
+      <!-- Mobile Toggle -->
+      <button type="button" class="btn-mobile-toggle" (click)="toggleMenu()" aria-label="Toggle menu" *ngIf="authService.isLoggedIn">
+        <span class="bar" [class.open]="isMenuOpen"></span>
+        <span class="bar" [class.open]="isMenuOpen"></span>
+        <span class="bar" [class.open]="isMenuOpen"></span>
+      </button>
+
     </div>
+  </div>
+
+  <!-- Collapsible Mobile Menu -->
+  <div class="mobile-menu" [class.active]="isMenuOpen" *ngIf="authService.isLoggedIn">
+    <a routerLink="/dashboard" routerLinkActive="active" class="mobile-menu-item" (click)="isMenuOpen = false">Dashboard</a>
+    <a routerLink="/jobs" routerLinkActive="active" class="mobile-menu-item" (click)="isMenuOpen = false">Jobs</a>
+    <a routerLink="/post-job" routerLinkActive="active" class="mobile-menu-item" *ngIf="authService.isReferrer" (click)="isMenuOpen = false">Post Job</a>
+    <a routerLink="/applications" routerLinkActive="active" class="mobile-menu-item" (click)="isMenuOpen = false">Applications</a>
   </div>
 </nav>
