@@ -198,6 +198,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "https://refer-me.pages.dev"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
